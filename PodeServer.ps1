@@ -151,13 +151,13 @@ if($CurrentOS -eq [OSType]::Windows){
         # setup form auth against windows AD (<form> in HTML)
         # New-PodeAuthScheme -Form | Add-PodeAuthWindowsAd -Name 'Login' -Groups @('XAAS-vCenter-Administrators-Compute-GS') -FailureUrl '/login' -SuccessUrl '/'
         
-        # Set Pode routes
+        # Set Pode endpoints
         Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
             Write-PodeViewResponse -Path 'index.pode'
         }
 
         Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Update.html'
+            Write-PodeViewResponse -Path 'Update-Assets.pode'
         }
 
         # Add File Watcher
