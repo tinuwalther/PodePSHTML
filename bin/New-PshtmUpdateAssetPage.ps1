@@ -153,7 +153,7 @@ process{
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
             # Script {mermaid.initialize({startOnLoad:true})}
     
-            title $HeaderTitle
+            title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
         #endregion header
@@ -181,7 +181,7 @@ process{
                 
                     article -Id "Bootstrap" -Content {
 
-                        h1 {'Bootstrap'} -Style "text-align: center; color:$($HeaderColor)"
+                        h1 {'Bootstrap'} -Style "color:$($HeaderColor)"
 
                         p {
                             $BootstrapJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.bundle.min.js')
@@ -199,7 +199,7 @@ process{
                             }
                         } -Style "color:#50C878"
 
-                        h2 -id 'UpdateBootstrap' {'How to update Bootstrap'} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 -id 'UpdateBootstrap' {'How to update Bootstrap'} -Style "color:$($HeaderColor)"
 
                         p {
                             'Open '
@@ -225,7 +225,7 @@ process{
 
                     article -Id "Packages" -Content {
 
-                        h1 {"NPM Packages"} -Style "text-align: center; color:$($HeaderColor)"
+                        h1 {"NPM Packages"} -Style "color:$($HeaderColor)"
 
                         p {
                             $JQueryJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/Jquery/jquery.min.js')
@@ -255,7 +255,7 @@ process{
 
                     article -Id "CDNPKG" -Content {
 
-                        h2 {"CDNPKG"} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 {"CDNPKG"} -Style "color:$($HeaderColor)"
 
                         p {
                             "CDNPKG is like a search engine but only for web assets (js, css, fonts etc.)."
@@ -277,7 +277,7 @@ process{
 
                     article -Id "UNPKG" -Content {
 
-                        h2 {"UNPKG"} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 {"UNPKG"} -Style "color:$($HeaderColor)"
 
                         p {
                             "UNPKG is a fast, global content delivery network for everything on npm."
@@ -292,7 +292,7 @@ process{
                     
                     article -Content {
 
-                        h2 -Id "UpdJQuery" {"How to update JQuery"} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 -Id "UpdJQuery" {"How to update JQuery"} -Style "color:$($HeaderColor)"
 
                         p {
                             'Open '
@@ -300,7 +300,7 @@ process{
                             ", find the latest version, mark the whole content, and copy & paste the content in to your jquery.min.js-file"
                         } -Style "color:$($TextColor)"
 
-                        h2 -Id "UpdateChart" {"How to update Chart Bundle"} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 -Id "UpdateChart" {"How to update Chart Bundle"} -Style "color:$($HeaderColor)"
 
                         p {
                             'Open '
@@ -308,7 +308,7 @@ process{
                             ", find the latest version, mark the whole content, and copy & paste the content in to your Chart.bundle.min.js-file"
                         } -Style "color:$($TextColor)"
 
-                        h2 -Id "UpdateMermaid" {"How to update Mermaid"} -Style "text-align: center; color:$($HeaderColor)"
+                        h2 -Id "UpdateMermaid" {"How to update Mermaid"} -Style "color:$($HeaderColor)"
 
                         p {
                             'Open '
@@ -345,15 +345,15 @@ process{
                         div -Class "col-md" {
                             p {
                                 $FooterSummary
-                                a -href "https://www.powershellgallery.com/packages/PSHTML" -Target _blank -content { "PSHTML" }
-                                ' and '
                                 a -href "https://www.powershellgallery.com/packages/Pode" -Target _blank -content { "pode" }
+                                ' and '
+                                a -href "https://www.powershellgallery.com/packages/PSHTML" -Target _blank -content { "PSHTML" }
                             }
                         }
 
                         # <!-- Column right -->
                         div -Class "col-md" {
-                            p {$((Get-Date).ToString())}
+                            p {"Runs on $([Environment]::MachineName)"}
                         } -Style "color:$TextColor"
                     }
                 }

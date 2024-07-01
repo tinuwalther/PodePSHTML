@@ -5,11 +5,8 @@
     .DESCRIPTION
     Test if it's running on Windows, then test if it's running with elevated Privileges, and start a new session if not.
 
-    .LINK
-    Specify a URI to a help page, this will show when Get-Help -Online is used.
-
     .EXAMPLE
-    PodeServer.ps1 -Verbose
+    pwsh .\PodePSHTML\PodeServer.ps1
 #>
 [CmdletBinding()]
 param ()
@@ -153,7 +150,11 @@ if($CurrentOS -eq [OSType]::Windows){
         
         # Set Pode endpoints
         Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
-            Write-PodeViewResponse -Path 'index.pode'
+            Write-PodeViewResponse -Path 'Index.pode'
+        }
+
+        Add-PodeRoute -Method Get -Path '/pode' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Pode-Server.pode'
         }
 
         Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
@@ -161,7 +162,7 @@ if($CurrentOS -eq [OSType]::Windows){
         }
 
         # Add File Watcher
-        # New-PodeUploadedFile -Watch 'D:/pode/uploads'
+        # New-PodeUploadedFile -Watch './PodePSHTML/uploads'
 
     } -RootPath $($PSScriptRoot).Replace('bin','pode')
 }
