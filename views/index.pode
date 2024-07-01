@@ -6,12 +6,14 @@
 
 	<head>
 	
-		<meta charset="UTF-8"  /><meta name="author" content="Martin Walther"/>
-		<meta name="keywords" content="PSHTML, PowerShell, Pode"  />
+		<meta charset="UTF-8"  /><meta name="author" content="Martin Walther - @tinuwalther"/>
+		<meta name="keywords" content="Pode, PSHTML, PowerShell, Mermaid Diagram"  />
 		<meta name="description" content="Builds beatuifull HTML-Files with PSHTML from native PowerShell-Scripts"  />
 		
 		<link rel="stylesheet" href=".\assets\BootStrap\bootstrap.min.css"  />
 		<link rel="stylesheet" href=".\assets\style\style.css"  />
+
+		<script src=".\assets\BootStrap\bootstrap.bundle.min.js"></script>
 
 		<title>#PSXi Index Page</title>
 		<link rel="icon" type="image/x-icon" href="/assets/img/favicon.ico">
@@ -44,6 +46,14 @@
 
 						<li Class="nav-item"  >
 							<a Target="_blank" href="https://github.com/tinuwalther/" Class="nav-link"  >GitLab</a>
+						</li>
+
+						<li Class="nav-item"  >
+							<a Target="_blank" href="https://www.w3schools.com/html/" Class="nav-link"  >HTML</a>
+						</li>
+
+						<li Class="nav-item"  >
+							<a Target="_blank" href="https://pshtml.readthedocs.io/en/latest/" Class="nav-link"  >PHTML</a>
 						</li>
 
 						<li Class="nav-item"  >
@@ -177,7 +187,7 @@
 						</p>
 					</div>
 					<div Class="col-md"  >
-						<p >Based on <a href="https://www.powershellgallery.com/packages/PSHTML/0.8.2" >PSHTML</a> and <a href="https://www.powershellgallery.com/packages/Pode/2.8.0" >Pode</a></p>
+						<p >Based on <a Target="_blank" href="https://www.powershellgallery.com/packages/PSHTML/0.8.2" >PSHTML</a> and <a Target="_blank" href="https://www.powershellgallery.com/packages/Pode/2.8.0" >Pode</a></p>
 					</div>
 					<div Class="col-md"  >
 						<p >Runs on localhost $([Environment]::MachineName)</p>
