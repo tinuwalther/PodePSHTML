@@ -161,6 +161,10 @@ if($CurrentOS -eq [OSType]::Windows){
             Write-PodeViewResponse -Path 'Update-Assets.pode'
         }
 
+        Add-PodeRoute -Method Get -Path '/sqlite' -ScriptBlock {
+            Write-PodeViewResponse -Path 'SQLite-Data.pode'
+        }
+
         # Add File Watcher
         # New-PodeUploadedFile -Watch './PodePSHTML/uploads'
 

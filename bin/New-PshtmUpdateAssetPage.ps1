@@ -25,7 +25,6 @@ param (
     [String]$AssetsPath = '/assets'
 )
 
-
 begin{    
     $StartTime = Get-Date
     $function = $($MyInvocation.MyCommand.Name)
@@ -133,10 +132,8 @@ process{
     }
     #endregion navbar
 
-    #region HTML
-    $HTML = html {
-
-        #region head
+    #region header
+    $header = {
         head {
             meta -charset 'UTF-8'
             meta -name 'author'      -content "Martin Walther - @tinuwalther"  
@@ -152,13 +149,15 @@ process{
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
             # Script {mermaid.initialize({startOnLoad:true})}
-    
+
             title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
-        #endregion header
+    }
+    #endregion header
 
-        #region body
+    #region body
+    $body = {
         body {
 
             #region <!-- header -->
@@ -325,9 +324,11 @@ process{
             #endregion section
             
         }
-        #endregion body
+    }
+    #endregion body
 
-        #region footer
+    #region footer
+    $footer = {
         div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
             Footer {
 
@@ -353,15 +354,21 @@ process{
 
                         # <!-- Column right -->
                         div -Class "col-md" {
-                            p {"Runs on $([Environment]::MachineName)"}
+                            p {"Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
                         } -Style "color:$TextColor"
                     }
                 }
-        
+
             }
         }
-        #endregion footer
+    }
+    #endregion footer
 
+    #region HTML
+    $HTML = html {
+        Invoke-Command -ScriptBlock $header
+        Invoke-Command -ScriptBlock $body
+        Invoke-Command -ScriptBlock $footer
     }
     #endregion html
 

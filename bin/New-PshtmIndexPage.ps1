@@ -73,8 +73,10 @@ process{
 
     $NavbarWebSiteLinks = [ordered]@{
         'https://github.com/tinuwalther/'                           = 'GitLab'
-        'https://www.w3schools.com/html/'                           = 'HTML'
         'https://pshtml.readthedocs.io/en/latest/'                  = 'PSHTML'
+        'https://github.com/jdhitsolutions/MySQLite'                = 'mySQLite'
+        'https://pester.dev/'                                       = 'Pester'
+        'https://www.w3schools.com/html/'                           = 'HTML'
         'https://getbootstrap.com/'                                 = 'Bootstrap'
         'https://www.cdnpkg.com/jquery/file/jquery.min.js/'         = 'JQuery'
         'https://www.cdnpkg.com/Chart.js/file/Chart.bundle.min.js/' = 'Chart'
@@ -120,10 +122,8 @@ process{
     }
     #endregion navbar
 
-    #region HTML
-    $HTML = html {
-
-        #region head
+    #region header
+    $header = {
         head {
             meta -charset 'UTF-8'
             meta -name 'author'      -content "Martin Walther - @tinuwalther"  
@@ -139,13 +139,15 @@ process{
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
             # Script {mermaid.initialize({startOnLoad:true})}
-    
+
             title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
-        #endregion header
+    }
+    #endregion header
 
-        #region body
+    #region body
+    $body = {
         body {
 
             #region <!-- header -->
@@ -200,38 +202,38 @@ process{
                             div -class "col" -Content {
                                 div -class $CardStyle -Content {
                                     div -class "card-header py-3 text-bg-success border-success" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Update Assets'}
+                                        h4 -class "my-0 fw-normal" -Content {'Database'}
                                     } -Style "color:$CardHeaderColor"
                                     div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Others'} -Style "color:$CardTitleColor"
-                                        p -Content {'Bla, bla, bla, bla ...'}
-                                        a -class "w-100 btn btn-lg btn-success" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
+                                        h1 -class "card-title" -Content {'SQLite'} -Style "color:$CardTitleColor"
+                                        p -Content {'Get data of an SQLite-DB.'}
+                                        a -class "w-100 btn btn-lg btn-success" -href "/sqlite" -Content {'Open'} -Style "color:$CardButtonColor"
                                     }
                                 }
                             }
                             #<!-- Card 4 >> Others -->
                             div -class "col" -Content {
                                 div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-warning border-warning" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Update Assets'}
+                                    div -class "card-header py-3 text-bg-info border-info" -Content {
+                                        h4 -class "my-0 fw-normal" -Content {'Pester'}
                                     } -Style "color:$CardHeaderColor"
                                     div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Others'} -Style "color:$CardTitleColor"
-                                        p -Content {'Bla, bla, bla, bla ...'}
-                                        a -class "w-100 btn btn-lg btn-warning" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
+                                        h1 -class "card-title" -Content {'Pester'} -Style "color:$CardTitleColor"
+                                        p -Content {'Visualize Pester Tests.'}
+                                        a -class "w-100 btn btn-lg btn-info" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
                                     }
                                 }
                             }
                             #<!-- Card 5 >> Others -->
                             div -class "col" -Content {
                                 div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-info border-info" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Update Assets'}
+                                    div -class "card-header py-3 text-bg-warning border-warning" -Content {
+                                        h4 -class "my-0 fw-normal" -Content {'What you like'}
                                     } -Style "color:$CardHeaderColor"
                                     div -class "card-body" -Content {
                                         h1 -class "card-title" -Content {'Others'} -Style "color:$CardTitleColor"
                                         p -Content {'Bla, bla, bla, bla ...'}
-                                        a -class "w-100 btn btn-lg btn-info" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
+                                        a -class "w-100 btn btn-lg btn-warning" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
                                     }
                                 }
                             }
@@ -246,9 +248,11 @@ process{
             #endregion section
             
         }
-        #endregion body
-
-        #region footer
+    }
+    #endregion body
+    
+    #region footer
+    $footer = {
         div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
             Footer {
 
@@ -274,15 +278,21 @@ process{
 
                         # <!-- Column right -->
                         div -Class "col-md" {
-                            p {"Runs on $([Environment]::MachineName)"}
+                            p {"Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
                         } -Style "color:$TextColor"
                     }
                 }
         
             }
         }
-        #endregion footer
-
+    }
+    #endregion footer
+    
+    #region HTML
+    $HTML = html {
+        Invoke-Command -ScriptBlock $header
+        Invoke-Command -ScriptBlock $body
+        Invoke-Command -ScriptBlock $footer
     }
     #endregion html
 

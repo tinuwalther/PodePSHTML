@@ -6,10 +6,10 @@
     Create new pode web-page with PSHTML. Contains the layout with a jumbotron, navbar, body, content, footer.
     
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmPodeServerPage.ps1 -Title 'Pode Server'
+    .\PodePSHTML\bin\New-PshtmSQLitePage.ps1 -Title 'SQLite Data'
 
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmPodeServerPage.ps1 -Title 'Pode Server' -AssetPath '/assets'
+    .\PodePSHTML\bin\New-PshtmSQLitePage.ps1 -Title 'SQLite Data' -AssetPath '/assets'
 #>
 
 #Requires -Modules PSHTML
@@ -24,6 +24,7 @@ param (
     [Parameter(Mandatory=$false)]
     [String]$AssetsPath = '/assets'
 )
+
 
 begin{    
     $StartTime = Get-Date
@@ -68,8 +69,11 @@ process{
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
-        'https://badgerati.github.io/Pode/'                        = 'Pode docs'
+        'https://github.com/jdhitsolutions/MySQLite/' = 'mySQLite'
     }
+
+    $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
+    $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
     #endregion variables
 
     #region navbar
@@ -93,31 +97,7 @@ process{
 
                 #region <!-- Navbar links -->
                 div -class "collapse navbar-collapse" -id "collapsibleNavbar" -Content {
-                    ul -class "navbar-nav" -content {
-                        
-                        # <!-- Navbar Dropdown -->
-                        li -class "nav-item dropdown" -Content {
-
-                            button -class "nav-link dropdown-toggle btn btn-sm-outline" -Attributes @{
-                                "type"="button"
-                                "data-bs-toggle"="dropdown"
-                            } -Content { 'Pode' }
-
-                            ul -class "dropdown-menu $BootstrapNavbarColor" {
-
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#InstallPode" -content { 'Install Pode' }
-                                }
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#ConfigurePode" -content { 'Configure Pode' }
-                                }
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#StartPode" -content { 'Start Pode' }
-                                }
-                            }                            
-                        }
-                        # <!-- Navbar Dropdown -->
-                        
+                    ul -class "navbar-nav" -content {                        
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
                                 a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
@@ -151,7 +131,7 @@ process{
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
             # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
             # Script {mermaid.initialize({startOnLoad:true})}
-
+    
             title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
@@ -179,78 +159,35 @@ process{
 
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
-                
-                    article -Id "Pode" -Content {
-
-                        h1 {'Pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            "Pode is a Cross-Platform framework to create web servers that host REST APIs, Web Sites, and TCP/SMTP Servers." 
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "It also allows you to render dynamic files using .pode files, which is effectively embedded PowerShell, or other Third-Party template engines. 
-                            Pode also has support for middleware, sessions, authentication, and logging; as well as access and rate limiting features. 
-                            There's also Azure Functions and AWS Lambda support!"
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            'Pode and Pode.web is created by Matthew Kelly '
-                            a -href "https://github.com/Badgerati" -Target _blank -content { '(Badgerati)' }
-                            ', licensed under the MIT License.'
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'InstallPode' {'How to install pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'You can install pode from the PowerShell-Gallery.'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'Install-Module -Name Pode -Verbose'
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'ConfigurePode' {'How to configure pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'Create a root folder, for example PodePSHTML:'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item -Path . -Name PodePSHTML -ItemType Directory -Force -Confirm:$false'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            'Change in to the new directory:'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'Set-Location ./PodePSHTML'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            'Clone the code from my repository:'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'git clone https://github.com/tinuwalther/PodePSHTML.git'
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'StartPode' {'How to start pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'Open a PowerShell and enter:'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'pwsh ./PodePSHTML/PodeServer.ps1'
-                        } -Style "color:$($TextColor)"
-
-                    }
-
+                    h1 {'VMware ESXi Host Inventory'} -Style "color:$($HeaderColor)"
                 }
-                #endregion column
 
+                div -id "Content" -Class "$($ContainerStyle)" {
+                    article -Id "SQLite" -Content {
+                        if(Test-Path $SQLiteDbPath){
+                            $SqliteConnection = Open-MySQLiteDB -Path $SQLiteDbPath
+                            $SqliteQuery      = 'SELECT * FROM "classic_ESXiHosts"'
+                            if([String]::IsNullOrEmpty($SqliteConnection)){
+                                p { 'Could not connect to SQLite database {0}' -f $SQLiteDbPath }
+                            }else{
+                                $SQLiteData = Invoke-MySQLiteQuery -Path $SQLiteDbPath -Query $SqliteQuery
+                                $SplatProperties = @{
+                                    Object     = $SQLiteData
+                                    TableClass = 'table table-responsive table-striped table-hover'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'HostName','Version','vCenterServer','Cluster','ConnectionState','Created','Manufacturer','Model','PhysicalLocation'
+                                    )
+                                }
+                                ConvertTo-PSHtmlTable @SplatProperties
+                            }
+                        }else{
+                            p { 'Could not find {0}' -f $SQLiteDbPath }
+                        }
+                    }
+                }
+                #endregion content
+                
             }
             #endregion section
             
@@ -294,7 +231,7 @@ process{
         }
     }
     #endregion footer
-    
+
     #region HTML
     $HTML = html {
         Invoke-Command -ScriptBlock $header
