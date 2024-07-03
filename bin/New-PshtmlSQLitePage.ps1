@@ -6,10 +6,10 @@
     Create new pode web-page with PSHTML. Contains the layout with a jumbotron, navbar, body, content, footer.
     
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmIndexPage.ps1 -Title 'Index'
+    .\PodePSHTML\bin\New-PshtmlSQLitePage.ps1 -Title 'SQLite Data'
 
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmIndexPage.ps1 -Title 'Index' -AssetPath '/assets'
+    .\PodePSHTML\bin\New-PshtmlSQLitePage.ps1 -Title 'SQLite Data' -AssetPath '/assets'
 #>
 
 #Requires -Modules PSHTML
@@ -63,26 +63,17 @@ process{
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
     $TextColor            = '#000'
-    $CardHeaderColor      = '#fff'
-    $CardTitleColor       = '#fff'
-    $CardButtonColor      = '#fff'
     $HeaderTitle          = $($Title)
     $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML"
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
-        'https://github.com/tinuwalther/'                           = 'GitLab'
-        'https://pshtml.readthedocs.io/en/latest/'                  = 'PSHTML'
-        'https://github.com/jdhitsolutions/MySQLite'                = 'mySQLite'
-        'https://pester.dev/'                                       = 'Pester'
-        'https://www.w3schools.com/html/'                           = 'HTML'
-        'https://getbootstrap.com/'                                 = 'Bootstrap'
-        'https://www.cdnpkg.com/jquery/file/jquery.min.js/'         = 'JQuery'
-        'https://www.cdnpkg.com/Chart.js/file/Chart.bundle.min.js/' = 'Chart'
+        'https://github.com/jdhitsolutions/MySQLite/' = 'mySQLite'
     }
 
-    $CardStyle = 'card bg-secondary mb-4 rounded-3 shadow-sm'
+    $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
+    $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
     #endregion variables
 
     #region navbar
@@ -106,13 +97,14 @@ process{
 
                 #region <!-- Navbar links -->
                 div -class "collapse navbar-collapse" -id "collapsibleNavbar" -Content {
-                    ul -class "navbar-nav" -content {
+                    ul -class "navbar-nav" -content {                        
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
                                 a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
                             }
                         }
                     }
+
                 }
                 #endregion Navbar links
             }
@@ -136,10 +128,7 @@ process{
 
             # Scripts
             Script -src $(Join-Path -Path $AssetsPath -ChildPath 'BootStrap/bootstrap.bundle.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
-            # Script {mermaid.initialize({startOnLoad:true})}
-
+    
             title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
@@ -153,7 +142,7 @@ process{
             #region <!-- header -->
             header  {
                 div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:#033b63" -content {
-                    p { h1 "#PSXi $($HeaderTitle) Page" }
+                    p { h1 "#PSXi $($HeaderTitle)" }
                     #p { h2 $HeaderCaption }  
                     p { $BodyDescription }  
                 }
@@ -166,91 +155,43 @@ process{
                 Invoke-Command -ScriptBlock $navbar
 
                 #region <!-- content -->
-                div -Class $ContainerStyleFluid {
-                    article -Id "Boxes" -Content {
-                        p {''}
+                div -id "Content" -Class "$($ContainerStyle)" {
+                    h1 {'VMware ESXi Host Inventory'} -Style "color:$($HeaderColor)"
+                }
 
-                        div -class "row row-cols-md-5 mb-5 text-center" -Content {
-
-                            #<!-- Card 1 >> Pode -->
-                            div -class "col" -Content {
-                                div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-danger border-danger" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Pode Server'}
-                                    } -Style "color:$CardHeaderColor"
-                                    div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Pode'} -Style "color:$CardTitleColor"
-                                        p -Content {'Display how to use pode.'}
-                                        a -class "w-100 btn btn-lg btn-danger" -href "/pode" -Content {'Open'} -Style "color:$CardButtonColor"
-                                    }
+                div -id "Content" -Class "$($ContainerStyle)" {
+                    article -Id "SQLite" -Content {
+                        if(Test-Path $SQLiteDbPath){
+                            $SqliteConnection = Open-MySQLiteDB -Path $SQLiteDbPath
+                            $SqliteQuery      = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+                            if([String]::IsNullOrEmpty($SqliteConnection)){
+                                p { 'Could not connect to SQLite database {0}' -f $SQLiteDbPath }
+                            }else{
+                                $SQLiteData = Invoke-MySQLiteQuery -Path $SQLiteDbPath -Query $SqliteQuery
+                                $SplatProperties = @{
+                                    Object     = $SQLiteData
+                                    TableClass = 'table table-responsive table-striped table-hover'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'HostName','Version','vCenterServer','Cluster','ConnectionState','Created','Manufacturer','Model','PhysicalLocation'
+                                    )
                                 }
+                                ConvertTo-PSHtmlTable @SplatProperties
                             }
-                            #<!-- Card 2 >> Assets -->
-                            div -class "col" -Content {
-                                div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-primary border-primary" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Update Assets'}
-                                    } -Style "color:$CardHeaderColor"
-                                    div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Assets'} -Style "color:$CardTitleColor"
-                                        p -Content {'Display how to update the assets.'}
-                                        a -class "w-100 btn btn-lg btn-primary" -href "/update" -Content {'Open'} -Style "color:$CardButtonColor"
-                                    }
-                                }
-                            }
-                            #<!-- Card 3 >> Others -->
-                            div -class "col" -Content {
-                                div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-success border-success" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Database'}
-                                    } -Style "color:$CardHeaderColor"
-                                    div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'SQLite'} -Style "color:$CardTitleColor"
-                                        p -Content {'Get data of an SQLite-DB.'}
-                                        a -class "w-100 btn btn-lg btn-success" -href "/sqlite" -Content {'Open'} -Style "color:$CardButtonColor"
-                                    }
-                                }
-                            }
-                            #<!-- Card 4 >> Others -->
-                            div -class "col" -Content {
-                                div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-info border-info" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'Pester'}
-                                    } -Style "color:$CardHeaderColor"
-                                    div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Pester'} -Style "color:$CardTitleColor"
-                                        p -Content {'Visualize Pester Tests.'}
-                                        a -class "w-100 btn btn-lg btn-info" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
-                                    }
-                                }
-                            }
-                            #<!-- Card 5 >> Others -->
-                            div -class "col" -Content {
-                                div -class $CardStyle -Content {
-                                    div -class "card-header py-3 text-bg-warning border-warning" -Content {
-                                        h4 -class "my-0 fw-normal" -Content {'What you like'}
-                                    } -Style "color:$CardHeaderColor"
-                                    div -class "card-body" -Content {
-                                        h1 -class "card-title" -Content {'Others'} -Style "color:$CardTitleColor"
-                                        p -Content {'Bla, bla, bla, bla ...'}
-                                        a -class "w-100 btn btn-lg btn-warning" -href "/" -Content {'Open'} -Style "color:$CardButtonColor"
-                                    }
-                                }
-                            }
-
+                        }else{
+                            p { 'Could not find {0}' -f $SQLiteDbPath }
                         }
-
                     }
                 }
-                #endregion column
-
+                #endregion content
+                
             }
             #endregion section
             
         }
     }
     #endregion body
-    
+
     #region footer
     $footer = {
         div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
@@ -287,7 +228,7 @@ process{
         }
     }
     #endregion footer
-    
+
     #region HTML
     $HTML = html {
         Invoke-Command -ScriptBlock $header

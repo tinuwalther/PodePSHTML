@@ -12,7 +12,7 @@
 param ()
 
 #region functions
-function New-PodeUploadedFile {
+function Invoke-FileWatcher {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
@@ -21,91 +21,64 @@ function New-PodeUploadedFile {
     )
 
     $function = $($MyInvocation.MyCommand.Name)
-    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)" -Join ' ')
+    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)", $Watch -Join ' ')
 
-    Add-PodeFileWatcher -EventName Created -Path $Watch -ScriptBlock {
+    Add-PodeFileWatcher -Name PodePSHTML -Path $Watch -ScriptBlock {
+
+        Write-Verbose "$($FileEvent.Name) -> $($FileEvent.Type) -> $($FileEvent.FullPath)"
+
+        $BinPath  = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
 
         try{
-            switch -Regex ($FileEvent.Name){
-                # Network Table
-                'AllClassicVIServers\-IXNetwork' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWNetworkInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllClassicVIServers-IXNetwork.csv -Delimiter ';') -Title 'AllClassic-NetworkTable'
-                }
-                'AllCloudVIServers\-IXNetwork' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWNetworkInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllCloudVIServers-IXNetwork.csv -Delimiter ';') -Title 'AllCloud-NetworkTable'
-                }
-                # Datastore Table
-                'AllClassicVIServers\-IXDatastore' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWDatastoreInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllClassicVIServers-IXDatastore.csv -Delimiter ';') -Title 'AllClassic-DatastoreTable'
-                }
-                'AllCloudVIServers\-IXDatastore' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWDatastoreInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllCloudVIServers-IXDatastore.csv -Delimiter ';') -Title 'AllCloud-DatastoreTable'
-                }
-                # vCenter Overview
-                'AllCloudVIServers\-IXVCSASummary' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    $CSVfiles = Get-ChildItem -Path 'D:/pode/uploads' -Filter '*IXVCSASummary.csv'
-                    $Summary = $null
-                    $Summary = foreach($item in $CSVfiles){
-                        Import-Csv -Path $item.FullName -Delimiter ';'
+            "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
+            switch -Regex ($FileEvent.Type){
+                'Created|Changed' {
+                    # Move-Item, New-Item
+                    switch -Regex ($FileEvent.Name){
+                        'index.txt' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index'
+                        }
+                        'sqlite.txt' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data'
+                        }
+                        'pester.xml' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -File $($FileEvent.FullPath)
+                        }
+                        'mermaid.txt' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram'
+                        }
                     }
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWVCSummary.ps1 -InputObject $Summary -Title 'All-VIServerTable'
+
+                    $index   = Join-Path -Path $($PSScriptRoot) -ChildPath 'views/index.pode'
+                    $content = Get-Content $index
+                    $content -replace 'Created at\s\d{4}\-\d{2}\-\d{2}\s\d{2}\:\d{2}\:\d{2}', "Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')" | Set-Content -Path $index -Force -Confirm:$false
+
                 }
-                # VMware Overview
-                'AllClassicVIServers\-IXVMwInfraSummary' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    $CSVfiles = Get-ChildItem -Path 'D:/pode/uploads' -Filter '*IXVMwInfraSummary.csv'
-                    $Summary = $null
-                    $Summary = foreach($item in $CSVfiles){
-                        Import-Csv -Path $item.FullName -Delimiter ';'
-                    }
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVMWInfraSummary.ps1 -InputObject $Summary -Title 'All-VIServerSummary'
+                'Deleted' {
+                    # Move-Item, Remove-Item
                 }
-                # ESXiHost Diagram and Table
-                'AllCloudVIServers\-IXESXiHostSummary' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVCSADiagram.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllCloudVIServers-IXESXiHostSummary.csv -Delimiter ';') -Title 'AllCloud-VIServerDiagram'
-                    . D:\pode\bin\New-PshtmlESXiHostInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllCloudVIServers-IXESXiHostSummary.csv -Delimiter ';') -Title 'AllCloud-ESXiHostTable'
+                'Renamed' {
+                    # Rename-Item
                 }
-                # ESXiHost Diagram and Table
-                'AllClassicVIServers\-IXESXiHostSummary' {
-                    "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-                    Start-Sleep -Seconds 5
-                    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                    . D:\pode\bin\New-PshtmlVCSADiagram.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllClassicVIServers-IXESXiHostSummary.csv -Delimiter ';') -Title 'AllClassic-VIServerDiagram'
-                    . D:\pode\bin\New-PshtmlESXiHostInventory.ps1 -InputObject (Import-Csv -Path D:\pode\uploads\AllClassicVIServers-IXESXiHostSummary.csv -Delimiter ';') -Title 'AllClassic-ESXiHostTable'
+                default {
+                    "        - $($FileEvent.Type): is not supported" | Out-Default
                 }
+
             }
-
-            $index   = 'D:/pode/views/index.pode'
-            $content = Get-Content $index
-            $content -replace 'Last update\s\d{4}\-\d{2}\-\d{2}\s\d{2}\:\d{2}\:\d{2}', "Last update $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')" | Set-Content -Path $index -Force -Confirm:$false
-
         }catch{
             Write-Warning "$($function): An error occured on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
-            "WARNING: $($function): An error occured on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)" | Add-Content -Path "D:\pode\logs\pode_$(Get-Date -f 'yyyy-MM-dd').log" -Encoding utf8 -Force
             $Error.Clear()
         }
 
-    }
+    } -Verbose
     
     Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
 
@@ -133,20 +106,18 @@ if($CurrentOS -eq [OSType]::Windows){
     Start-PodeServer {
         Write-Host "Press Ctrl. + C to terminate the Pode server" -ForegroundColor Yellow
 
+        # Enables Error Logging
+        New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+
         # Add listener to Port 8080 for Protocol http
         Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
 
-        # Add Logging method
-        # New-PodeLoggingMethod -File -Name 'requests' -MaxDays 7 -Batch 10 | Enable-PodeRequestLogging
-
-        # Add view
+        # Set the engine to use and render .pode files
         Set-PodeViewEngine -Type Pode
 
-        # setup session details
-        # Enable-PodeSessionMiddleware -Duration 720 -Extend
-
-        # setup form auth against windows AD (<form> in HTML)
-        # New-PodeAuthScheme -Form | Add-PodeAuthWindowsAd -Name 'Login' -Groups @('XAAS-vCenter-Administrators-Compute-GS') -FailureUrl '/login' -SuccessUrl '/'
+        # Add File Watcher
+        $WatcherPath = Join-Path -Path $($PSScriptRoot) -ChildPath 'upload'
+        Invoke-FileWatcher -Watch $WatcherPath
         
         # Set Pode endpoints
         Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
@@ -165,9 +136,14 @@ if($CurrentOS -eq [OSType]::Windows){
             Write-PodeViewResponse -Path 'SQLite-Data.pode'
         }
 
-        # Add File Watcher
-        # New-PodeUploadedFile -Watch './PodePSHTML/uploads'
+        Add-PodeRoute -Method Get -Path '/pester' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Pester-Result.pode'
+        }
 
-    } -RootPath $($PSScriptRoot).Replace('bin','pode')
+        Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
+        }
+
+    } -Verbose
 }
 #endregion

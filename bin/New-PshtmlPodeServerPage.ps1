@@ -6,10 +6,10 @@
     Create new pode web-page with PSHTML. Contains the layout with a jumbotron, navbar, body, content, footer.
     
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmUpdateAssetPage.ps1 -Title 'Update Assets'
+    .\PodePSHTML\bin\New-PshtmlPodeServerPage.ps1 -Title 'Pode Server'
 
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmUpdateAssetPage.ps1 -Title 'Update Assets' -AssetPath '/assets'
+    .\PodePSHTML\bin\New-PshtmlPodeServerPage.ps1 -Title 'Pode Server' -AssetPath '/assets'
 #>
 
 #Requires -Modules PSHTML
@@ -66,6 +66,10 @@ process{
     $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML"
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
+
+    $NavbarWebSiteLinks = [ordered]@{
+        'https://badgerati.github.io/Pode/'                        = 'Pode docs'
+    }
     #endregion variables
 
     #region navbar
@@ -90,11 +94,6 @@ process{
                 #region <!-- Navbar links -->
                 div -class "collapse navbar-collapse" -id "collapsibleNavbar" -Content {
                     ul -class "navbar-nav" -content {
-
-                        # <!-- StaticLink -->
-                        li -class "nav-item" -content {
-                            a -class "nav-link" -href "#Bootstrap" -content { 'Bootstrap' }
-                        }
                         
                         # <!-- Navbar Dropdown -->
                         li -class "nav-item dropdown" -Content {
@@ -102,27 +101,30 @@ process{
                             button -class "nav-link dropdown-toggle btn btn-sm-outline" -Attributes @{
                                 "type"="button"
                                 "data-bs-toggle"="dropdown"
-                            } -Content { 'Packages' }
+                            } -Content { 'Pode' }
 
                             ul -class "dropdown-menu $BootstrapNavbarColor" {
-                                li -class "nav-item" -content {
-                                    a -class "nav-link" -href "#Packages" -content { 'Packages' }
-                                }
 
                                 li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#UpdJQuery" -content { 'Update Jquery' }
+                                    a -class "nav-link" -href "#InstallPode" -content { 'Install Pode' }
                                 }
                                 li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#UpdateChart" -content { 'Update Chart' }
+                                    a -class "nav-link" -href "#ConfigurePode" -content { 'Configure Pode' }
                                 }
                                 li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#UpdateMermaid" -content { 'Update Mermaid' }
+                                    a -class "nav-link" -href "#StartPode" -content { 'Start Pode' }
                                 }
                             }                            
                         }
                         # <!-- Navbar Dropdown -->
                         
+                        $NavbarWebSiteLinks.Keys | ForEach-Object {
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
+                            }
+                        }
                     }
+
                 }
                 #endregion Navbar links
             }
@@ -146,9 +148,6 @@ process{
 
             # Scripts
             Script -src $(Join-Path -Path $AssetsPath -ChildPath 'BootStrap/bootstrap.bundle.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
-            # Script {mermaid.initialize({startOnLoad:true})}
 
             title "#PSXi $($HeaderTitle)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
@@ -178,141 +177,70 @@ process{
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
                 
-                    article -Id "Bootstrap" -Content {
+                    article -Id "Pode" -Content {
 
-                        h1 {'Bootstrap'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            $BootstrapJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.bundle.min.js')
-                            if(Test-Path  $BootstrapJsPath){
-                                $BootstrapJsString  = Get-Content -Path $BootstrapJsPath -TotalCount 2
-                                $BootstrapJsVersion = [regex]::Match($BootstrapJsString, '\d\.\d\.\d')
-                                b {"Current JavaScript version: $($BootstrapJsVersion)"}
-                            }
-                            
-                            $BootstrapCssPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.min.css')
-                            if(Test-Path  $BootstrapCssPath){
-                                $BootstrapCssString  = Get-Content -Path $BootstrapCssPath -TotalCount 2
-                                $BootstrapCssVersion = [regex]::Match($BootstrapCssString, '\d\.\d\.\d')
-                                b {", current CSS version: $($BootstrapCssVersion)"}
-                            }
-                        } -Style "color:#50C878"
-
-                        h2 -id 'UpdateBootstrap' {'How to update Bootstrap'} -Style "color:$($HeaderColor)"
+                        h1 {'Pode'} -Style "color:$($HeaderColor)"
 
                         p {
-                            'Open '
-                            a -href "https://getbootstrap.com/" -Target _blank -content { 'Bootstrap' }
-                            " and scroll down to "; b {'Include via CDN.'}
+                            "Pode is a Cross-Platform framework to create web servers that host REST APIs, Web Sites, and TCP/SMTP Servers." 
                         } -Style "color:$($TextColor)"
 
                         p {
-                            "Browse to the URL in link href of the bootstrap.min.css, mark the whole content, and copy & paste the content in to your bootstrap.min.css-file."
+                            "It also allows you to render dynamic files using .pode files, which is effectively embedded PowerShell, or other Third-Party template engines. 
+                            Pode also has support for middleware, sessions, authentication, and logging; as well as access and rate limiting features. 
+                            There's also Azure Functions and AWS Lambda support!"
                         } -Style "color:$($TextColor)"
 
                         p {
-                            "Browse to the URL in script src of the bootstrap.bundle.min.js, mark the whole content, and copy & paste the content in to your bootstrap.bundle.min.js-file."
+                            'Pode and Pode.web is created by Matthew Kelly '
+                            a -href "https://github.com/Badgerati" -Target _blank -content { '(Badgerati)' }
+                            ', licensed under the MIT License.'
                         } -Style "color:$($TextColor)"
 
-                    }
-
-                }
-
-                hr
-
-                div -id "Content" -Class "$($ContainerStyle)" {
-
-                    article -Id "Packages" -Content {
-
-                        h1 {"NPM Packages"} -Style "color:$($HeaderColor)"
+                        h2 -id 'InstallPode' {'How to install pode'} -Style "color:$($HeaderColor)"
 
                         p {
-                            $JQueryJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/Jquery/jquery.min.js')
-                            if(Test-Path  $JQueryJsPath){
-                                $JQueryJsString  = Get-Content -Path $JQueryJsPath -TotalCount 2
-                                $JQueryJsVersion = [regex]::Match($JQueryJsString, '\d\.\d\.\d')
-                                b {"Current Jquery version: $($JQueryJsVersion)"}
-                            }
+                            'You can install pode from the PowerShell-Gallery.'
+                        } -Style "color:$($TextColor)"
 
-                            $ChartJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/Chartjs/Chart.bundle.min.js')
-                            if(Test-Path  $ChartJsPath){
-                                $ChartJsString  = Get-Content -Path $ChartJsPath -TotalCount 2
-                                $ChartJsVersion = [regex]::Match($ChartJsString, '\d\.\d\.\d')
-                                b {", current Chart version: $($ChartJsVersion)"}
-                            }
+                        pre {
+                            'Install-Module -Name Pode -Verbose'
+                        } -Style "color:$($TextColor)"
 
-                            # $MermaidJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/Chartjs/Chart.bundle.min.js')
-                            # if(Test-Path  $ChartJsPath){
-                            #     $MermaidJsString  = Get-Content -Path $MermaidJsPath -TotalCount 2
-                            #     $MermaidJsVersion = [regex]::Match($MermaidJsString, '\d\.\d\.\d')
-                            #     b {", current mermaid version: $($MermaidJsVersion)"}
-                            # }
-                            
-                        } -Style "color:#50C878"
-
-                    }
-
-                    article -Id "CDNPKG" -Content {
-
-                        h2 {"CDNPKG"} -Style "color:$($HeaderColor)"
+                        h2 -id 'ConfigurePode' {'How to configure pode'} -Style "color:$($HeaderColor)"
 
                         p {
-                            "CDNPKG is like a search engine but only for web assets (js, css, fonts etc.)."
+                            'Create a root folder, for example PodePSHTML:'
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item -Path . -Name PodePSHTML -ItemType Directory -Force -Confirm:$false'
                         } -Style "color:$($TextColor)"
 
                         p {
-                            "The primary goal is to help developers to find their web assets more easily for production or development/test."
+                            'Change in to the new directory:'
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Set-Location ./PodePSHTML'
                         } -Style "color:$($TextColor)"
 
                         p {
-                            a -href "https://www.cdnpkg.com/Chart.js/file/Chart.bundle.min.js/" -Target _blank -content { 'chart.bundle.min.js' }
-                            ' | '
-                            a -href "https://www.cdnpkg.com/jquery/file/jquery.min.js/" -Target _blank -content { 'jquery.min.js' }
-                            ' | '
-                            a -href "https://www.cdnpkg.com/mermaid?id=87189" -Target _blank -content { 'mermaid' }
+                            'Clone the code from my repository:'
                         } -Style "color:$($TextColor)"
 
-                    }
-
-                    article -Id "UNPKG" -Content {
-
-                        h2 {"UNPKG"} -Style "color:$($HeaderColor)"
-
-                        p {
-                            "UNPKG is a fast, global content delivery network for everything on npm."
+                        pre {
+                            'git clone https://github.com/tinuwalther/PodePSHTML.git'
                         } -Style "color:$($TextColor)"
 
-                        p {
-                            a -href "https://unpkg.com/browse/jquery.min.js/" -Target _blank -content { 'jquery.min.js' }
-                            ' | '
-                            a -href "https://unpkg.com/mermaid/" -Target _blank -content { 'mermaid' }
-                        } -Style "color:$($TextColor)"
-                    }
-                    
-                    article -Content {
-
-                        h2 -Id "UpdJQuery" {"How to update JQuery"} -Style "color:$($HeaderColor)"
+                        h2 -id 'StartPode' {'How to start pode'} -Style "color:$($HeaderColor)"
 
                         p {
-                            'Open '
-                            a -href "https://www.cdnpkg.com/jquery/file/jquery.min.js/" -Target _blank -content { 'jquery.min.js' }
-                            ", find the latest version, mark the whole content, and copy & paste the content in to your jquery.min.js-file"
+                            'Open a PowerShell and enter:'
                         } -Style "color:$($TextColor)"
 
-                        h2 -Id "UpdateChart" {"How to update Chart Bundle"} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'Open '
-                            a -href "https://www.cdnpkg.com/Chart.js/file/Chart.bundle.min.js/" -Target _blank -content { 'chart.bundle.min.js' }
-                            ", find the latest version, mark the whole content, and copy & paste the content in to your Chart.bundle.min.js-file"
-                        } -Style "color:$($TextColor)"
-
-                        h2 -Id "UpdateMermaid" {"How to update Mermaid"} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'Open '
-                            a -href "https://www.cdnpkg.com/mermaid?id=87189" -Target _blank -content { 'mermaid.min.js' }
-                            ", find the latest version, mark the whole content, and copy & paste the content in to your mermaid.min.js-file"
+                        pre {
+                            'pwsh ./PodePSHTML/PodeServer.ps1'
                         } -Style "color:$($TextColor)"
 
                     }
@@ -358,12 +286,12 @@ process{
                         } -Style "color:$TextColor"
                     }
                 }
-
+        
             }
         }
     }
     #endregion footer
-
+    
     #region HTML
     $HTML = html {
         Invoke-Command -ScriptBlock $header
