@@ -20,6 +20,10 @@ param (
     [Parameter(Mandatory=$true)]
     [String]$Title,
 
+    #FullName of the sqlite file with the TSQL Statement
+    [Parameter(Mandatory=$true)]
+    [String]$File,
+
     #Asset-path, should be public/assets on the pode server
     [Parameter(Mandatory=$false)]
     [String]$AssetsPath = '/assets'
@@ -74,6 +78,12 @@ process{
 
     $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
     $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
+    $TSQL = Get-Content -Path $File
+    if([String]::IsNullOrEmpty($TSQL)){
+        $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+    }else{
+        $SqliteQuery = $TSQL
+    }
     #endregion variables
 
     #region navbar
@@ -163,7 +173,7 @@ process{
                     article -Id "SQLite" -Content {
                         if(Test-Path $SQLiteDbPath){
                             $SqliteConnection = Open-MySQLiteDB -Path $SQLiteDbPath
-                            $SqliteQuery      = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+                            # $SqliteQuery      = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
                             if([String]::IsNullOrEmpty($SqliteConnection)){
                                 p { 'Could not connect to SQLite database {0}' -f $SQLiteDbPath }
                             }else{

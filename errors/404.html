@@ -31,8 +31,32 @@
             </div>
             <div Style="background-color:#034f84; text-align: left" Id="Content"  >
                 <h2>Hey you! </h2>
-                <p>We've tried really hard to find your requested page, but the page you are looking for does not exist.</p>
-                <p>How you got here is a mystery. But you can cklick the Home-Button to go back to the homepage.</p>
+                <p>We've tried really hard to find your requested page, but the page you are looking for does not exist. How you got here is a mystery. But you can cklick the Home-Button to go back to the homepage, 
+                or try to builds the pages, with the following commands in a PowerShell:</p>
+                <p>New-Item ./PodePSHTML/upload -Force -Name index.txt</p>
+                <p>New-Item ./PodePSHTML/upload -Force -Name pode.txt</p>
+                <p>New-Item ./PodePSHTML/upload -Force -Name asset.txt</p>
+                <p>New-Item ./PodePSHTML/upload -Force -Name mermaid.txt</p>
+                <p>'SELECT * FROM "classic_ESXiHosts" Limit 15' | Set-Content -Path ./PodePSHTML/upload/sqlite.txt -Force</p>
+                <p>Import-Module Pester;
+                    $config = [PesterConfiguration]@{
+                        Should = @{
+                            ErrorAction = 'Continue'
+                        };
+                        Run = @{
+                            Path = './PodePSHTML/bin/Invoke-PesterResult.Tests.ps1'
+                        };
+                        Output = @{
+                            Verbosity = 'None'
+                        };
+                        TestResult = @{
+                            Enabled      = $true;
+                            OutputFormat = 'NUnitXml';
+                            OutputPath   = './PodePSHTML/upload/pester.xml'
+                        }
+                    };
+                    Invoke-Pester -Configuration $config
+                </p>
             </div>
         </div>
 

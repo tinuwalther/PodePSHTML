@@ -60,6 +60,12 @@ Re-builds the SQLite-Data.pode page:
 New-Item ./PodePSHTML/upload -Name sqlite.txt -Force
 ````
 
+Re-builds the SQLite-Data.pode page with the following Sql-Statement:
+
+````powershell
+'SELECT * FROM "classic_ESXiHosts" Limit 10' | Set-Content -Path ./PodePSHTML/upload/sqlite.txt -Force
+````
+
 ### Pester
 
 Re-builds the Pester-Result.pode page:

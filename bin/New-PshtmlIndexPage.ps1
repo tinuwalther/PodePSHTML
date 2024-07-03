@@ -241,7 +241,7 @@ process{
                         }
 
                         pre {
-                            'New-Item ./PodePSHTML/upload -Force -Name index.txt | sqlite.txt | pester.xml | mermaid.txt # rebuilds the equivalent pode page'
+                            'New-Item ./PodePSHTML/upload -Force -Name index.txt | pode.txt | asset.txt | sqlite.txt | mermaid.txt # re-builds the equivalent pode page'
                         } -Style "color:$($TextColor)"
     
                     }

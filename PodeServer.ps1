@@ -40,10 +40,20 @@ function Invoke-FileWatcher {
                             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
                             . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index'
                         }
+                        'pode.txt' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server'
+                        }
+                        'asset.txt' {
+                            Start-Sleep -Seconds 3
+                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets'
+                        }
                         'sqlite.txt' {
                             Start-Sleep -Seconds 3
                             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data'
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -File $($FileEvent.FullPath)
                         }
                         'pester.xml' {
                             Start-Sleep -Seconds 3
