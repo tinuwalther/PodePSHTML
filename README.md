@@ -50,6 +50,22 @@ Re-builds the Index.pode page:
 New-Item ./PodePSHTML/upload -Name index.txt -Force
 ````
 
+### Pode
+
+Re-builds the Pode-Server.pode page:
+
+````powershell
+New-Item ./PodePSHTML/upload -Name pode.txt -Force
+````
+
+### Asset
+
+Re-builds the Update-Assets.pode page:
+
+````powershell
+New-Item ./PodePSHTML/upload -Name asset.txt -Force
+````
+
 ### SQLite
 
 The File Watcher monitors for a file sqlite.txt of the type Created or Changed (Move-Item, New-Item).
