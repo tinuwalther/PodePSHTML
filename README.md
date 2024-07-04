@@ -1,5 +1,28 @@
 # PodePSHTML
 
+<!-- TOC -->
+
+- [PodePSHTML](#podepshtml)
+    - [Overview](#overview)
+    - [File Watcher](#file-watcher)
+        - [Index](#index)
+        - [Pode](#pode)
+        - [Asset](#asset)
+        - [SQLite](#sqlite)
+        - [Pester](#pester)
+        - [Mermaid](#mermaid)
+    - [API](#api)
+        - [Index](#index)
+        - [Pode](#pode)
+        - [Asset](#asset)
+        - [SQLite](#sqlite)
+        - [Pester](#pester)
+        - [Mermaid](#mermaid)
+
+<!-- /TOC -->
+
+## Overview
+
 This is an example for using pode and PSHTML with mySQLite and Pester v5+.
 
 ![PodePSHTM-Index](./public/img/PodePSHTML.png)
@@ -35,6 +58,8 @@ pwsh ./PodePSHTML/PodeServer.ps1
 ````
 
 Open your preffered browser and enter http://localhost:8080/ in the address - enjoy PodePSHTML!
+
+[TOP](#)
 
 ## File Watcher
 
@@ -113,4 +138,94 @@ Re-builds the Mermaid-Diagram.pode page:
 
 ````powershell
 New-Item ./PodePSHTML/upload -Name mermaid.txt -Force
+````
+
+[TOP](#)
+
+## API
+
+It's also possible, to send REST API requests to pode.
+
+### Index
+
+Re-builds the Index.pode page:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/index -Method Post
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: Index.pode
+````
+
+### Pode
+
+Re-builds the Pode-Server.pode page:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/pode -Method Post
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: Pode-Server.pode
+````
+
+### Asset
+
+Re-builds the Update-Assets.pode page:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/asset -Method Post
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: Update-Assets.pode
+````
+
+### SQLite
+
+Re-builds the SQLite-Data.pode page with the following Sql-Statement:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body 'SELECT * FROM "classic_ESXiHosts" Limit 10'
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: SQLite-Data.pode
+````
+
+### Pester
+
+Re-builds the Pester-Result.pode page:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: Pester-Result.pode
+````
+
+### Mermaid
+
+Re-builds the Mermaid-Diagram.pode page:
+
+````powershell
+Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post
+````
+
+````powershell
+StatusCode        : 200
+StatusDescription : OK
+Content           : Page created: Mermaid-Diagram.pode
 ````

@@ -5,33 +5,33 @@ BeforeDiscovery {
 }
 
 Describe "Test PsNetTools" {
-
-    it "[NEG] Test-PsNetDig should return true" -Tag Dig {
+    
+    it "[NEG] Test-PsNetDig to sbb.ch should return true" -Tag Dig {
         Mock Test-PsNetDig { return [PSCustomObject]@{ Succeeded = $false } }
-        (Test-PsNetDig 'sbb.ch').Succeeded | Should -BeTrue
+        (Test-PsNetDig -Destination 'sbb.ch').Succeeded | Should -BeTrue
     }
 
-    it "[POS] Test-PsNetDig should return a PSCustomObject" -Tag Dig {
+    it "[POS] Test-PsNetDig to sbb.ch should return a PSCustomObject" -Tag Dig {
         Mock Test-PsNetDig { return [PSCustomObject]@{ Succeeded = $false } }
-        (Test-PsNetDig 'sbb.ch').Succeeded | Should -BeOfType [PSCustomObject]
+        (Test-PsNetDig -Destination 'sbb.ch').Succeeded | Should -BeOfType [PSCustomObject]
     }
 
-    it "[NEG] Test-PsNetPing should return true" -Tag Ping, NotRun {
+    it "[NEG] Test-PsNetPing to sbb.ch should return true" -Tag Ping, NotRun {
         Mock Test-PsNetPing { return [PSCustomObject]@{ Succeeded = $false } }
         (Test-PsNetPing -Destination 'sbb.ch').Succeeded | Should -BeTrue
     }
 
-    it "[NEG] Test-PsNetTping should return true" -Tag Ping {
+    it "[NEG] Test-PsNetTping to sbb.ch should return true" -Tag Ping {
         Mock Test-PsNetTping { return [PSCustomObject]@{ TcpSucceeded = $false } }
         (Test-PsNetTping -Destination 'sbb.ch' -CommonTcpPort HTTPS ).TcpSucceeded | Should -BeTrue
     }
 
-    it "[POS] Test-PsNetUping should return true" -Tag Ping {
+    it "[POS] Test-PsNetUping to sbb.ch should return true" -Tag Ping {
         Mock Test-PsNetUping { return [PSCustomObject]@{ UdpSucceeded = $true } }
         (Test-PsNetUping -Destination 'sbb.ch' -UdpPort 53 ).UdpSucceeded | Should -BeTrue
     }
 
-    it "[POS] Test-PsNetWping should return true" -Tag Ping {
+    it "[POS] Test-PsNetWping to sbb.ch should return true" -Tag Ping {
         Mock Test-PsNetWping { return [PSCustomObject]@{ HttpSucceeded = $true } }
         (Test-PsNetWping -Destination 'sbb.ch').HttpSucceeded | Should -BeTrue
     }

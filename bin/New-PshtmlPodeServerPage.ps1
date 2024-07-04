@@ -20,6 +20,10 @@ param (
     [Parameter(Mandatory=$true)]
     [String]$Title,
 
+    #Requested by API or FileWatcher
+    [Parameter(Mandatory=$true)]
+    [String]$Request,
+
     #Asset-path, should be public/assets on the pode server
     [Parameter(Mandatory=$false)]
     [String]$AssetsPath = '/assets'
@@ -63,7 +67,7 @@ process{
     $HeaderColor          = '#212529'
     $TextColor            = '#000'
     $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML"
+    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $Request"
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
@@ -312,5 +316,5 @@ end{
         '{1:0}h {2:0}m {3:0}s {4:000}ms' -f $_.Days, $_.Hours, $_.Minutes, $_.Seconds, $_.Milliseconds
     }
     Write-Verbose $('Finished in:', $Formatted -Join ' ')
-    "Page created: $($OutFile)"
+    "Page created: $($PodeView)"
 }

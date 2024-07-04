@@ -20,9 +20,17 @@ param (
     [Parameter(Mandatory=$true)]
     [String]$Title,
 
-    #FullName of the sqlite file with the TSQL Statement
+    #Requested by API or FileWatcher
     [Parameter(Mandatory=$true)]
+    [String]$Request,
+
+    #FullName of the sqlite file with the TSQL Statement
+    [Parameter(Mandatory=$false)]
     [String]$File,
+
+    #TSQL Statement
+    [Parameter(Mandatory=$false)]
+    [String]$TsqlQuery,
 
     #Asset-path, should be public/assets on the pode server
     [Parameter(Mandatory=$false)]
@@ -68,7 +76,7 @@ process{
     $HeaderColor          = '#212529'
     $TextColor            = '#000'
     $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML"
+    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $Request"
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
@@ -78,11 +86,21 @@ process{
 
     $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
     $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
-    $TSQL = Get-Content -Path $File
-    if([String]::IsNullOrEmpty($TSQL)){
-        $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+    # $TSQL = Get-Content -Path $File
+    # if([String]::IsNullOrEmpty($TSQL)){
+    #     $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+    # }else{
+    #     $SqliteQuery = $TSQL
+    # }
+
+    if([String]::IsNullOrEmpty($TsqlQuery)){
+        if([String]::IsNullOrEmpty($File)){
+            $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+        }else{
+            $SqliteQuery = Get-Content -Path $File
+        }
     }else{
-        $SqliteQuery = $TSQL
+        $SqliteQuery = $TsqlQuery
     }
     #endregion variables
 
@@ -259,5 +277,5 @@ end{
         '{1:0}h {2:0}m {3:0}s {4:000}ms' -f $_.Days, $_.Hours, $_.Minutes, $_.Seconds, $_.Milliseconds
     }
     Write-Verbose $('Finished in:', $Formatted -Join ' ')
-    "Page created: $($OutFile)"
+    "Page created: $($PodeView)"
 }
