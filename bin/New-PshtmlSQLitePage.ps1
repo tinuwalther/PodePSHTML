@@ -86,18 +86,17 @@ process{
 
     $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
     $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
-    # $TSQL = Get-Content -Path $File
-    # if([String]::IsNullOrEmpty($TSQL)){
-    #     $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
-    # }else{
-    #     $SqliteQuery = $TSQL
-    # }
 
     if([String]::IsNullOrEmpty($TsqlQuery)){
-        if([String]::IsNullOrEmpty($File)){
-            $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
+        if(Test-Path $File){
+            $FileExists = Get-Item $File
+            if($FileExists.Length -lt 1){
+                $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 5'
+            }else{
+                $SqliteQuery = Get-Content -Path $File
+            }    
         }else{
-            $SqliteQuery = Get-Content -Path $File
+            $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 5'
         }
     }else{
         $SqliteQuery = $TsqlQuery
@@ -185,6 +184,7 @@ process{
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
                     h1 {'VMware ESXi Host Inventory'} -Style "color:$($HeaderColor)"
+                    p {'Based on {0}' -f $SqliteQuery} -Style "color:$($TextColor)"
                 }
 
                 div -id "Content" -Class "$($ContainerStyle)" {
@@ -200,9 +200,7 @@ process{
                                     Object     = $SQLiteData
                                     TableClass = 'table table-responsive table-striped table-hover'
                                     TheadClass = "thead-dark"
-                                    Properties = @(
-                                        'HostName','Version','vCenterServer','Cluster','ConnectionState','Created','Manufacturer','Model','PhysicalLocation'
-                                    )
+                                    # Properties = @('HostName','Version','vCenterServer','Cluster','ConnectionState','Created','Manufacturer','Model','PhysicalLocation')
                                 }
                                 ConvertTo-PSHtmlTable @SplatProperties
                             }

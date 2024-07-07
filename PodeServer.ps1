@@ -55,10 +55,20 @@ function Invoke-FileWatcher {
                             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
                             . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'FileWatcher' -File $($FileEvent.FullPath)
                         }
-                        'pester.xml' {
+                        'pester.txt' {
                             Start-Sleep -Seconds 3
                             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'FileWatcher' -File $($FileEvent.FullPath)
+                            Import-Module Pester
+                            # In a container it's possible to pass variables
+                            $ContainerSplat = @{
+                                Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
+                                Data   = @{ Destination = 'github.com','sbb.ch'}
+                            }
+                            $container  = New-PesterContainer @ContainerSplat
+                            # Exclude Tests with the Tag NotRun
+                            $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
+                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'FileWatcher' -PesterData $PesterData
+                
                         }
                         'mermaid.txt' {
                             Start-Sleep -Seconds 3
@@ -159,7 +169,7 @@ if($CurrentOS -eq [OSType]::Windows){
 
         #region Set Pode endpoints for the api
         $BinPath    = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
-        $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pester.xml'
+        $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pstests.xml'
 
         Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
             param($BinPath)
@@ -193,25 +203,20 @@ if($CurrentOS -eq [OSType]::Windows){
             param($BinPath, $PesterPath)
             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
             Import-Module Pester
-            $config = [PesterConfiguration]@{
-                Should = @{
-                    ErrorAction = 'Continue'
-                }
-                Run = @{
-                    Path = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
-                }
-                Output = @{
-                    Verbosity = 'None'
-                }
-                TestResult = @{
-                    Enabled      = $true
-                    OutputFormat = 'NUnitXml'
-                    OutputPath   = $PesterPath
-                }
+            # In a container it's possible to pass variables
+            $ContainerSplat = @{
+                Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
+                Data   = @{ Destination = 'github.com','sbb.ch'}
             }
-            Invoke-Pester -Configuration $config
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -File $PesterPath
-            Write-PodeJsonResponse -Value $Response
+            $container  = New-PesterContainer @ContainerSplat
+            # Exclude Tests with the Tag NotRun
+            $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -PesterData $PesterData
+            if([String]::IsNullOrEmpty($Response)){
+                Write-PodeJsonResponse -Value 'Could not read pester results' -StatusCode 400
+            }else{
+                Write-PodeJsonResponse -Value $Response
+            }
         }
 
         Add-PodeRoute -Method Post -Path '/api/mermaid' -ArgumentList @($BinPath) -ScriptBlock {

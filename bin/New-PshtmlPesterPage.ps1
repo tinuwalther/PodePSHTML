@@ -6,10 +6,10 @@
     Create new pode web-page with PSHTML. Contains the layout with a jumbotron, navbar, body, content, footer.
     
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmlPesterPage.ps1 -Title 'Pester Result'
+    .\PodePSHTML\bin\New-PshtmlApiPesterPage.ps1 -Title 'Pester Result'
 
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmlPesterPage.ps1 -Title 'Pester Result' -AssetPath '/assets'
+    .\PodePSHTML\bin\New-PshtmlApiPesterPage.ps1 -Title 'Pester Result' -AssetPath '/assets'
 #>
 
 #Requires -Modules PSHTML
@@ -24,9 +24,9 @@ param (
     [Parameter(Mandatory=$true)]
     [String]$Request,
 
-    #FullName of the pester tests as NUnitXML
+    #PesterData of the pester tests as Object
     [Parameter(Mandatory=$true)]
-    [String]$File,
+    [Object]$PesterData,
 
     #Asset-path, should be public/assets on the pode server
     [Parameter(Mandatory=$false)]
@@ -80,14 +80,12 @@ process{
         'https://pester.dev/' = 'Pester'
     }
     
-    # Pester NUnitXml data
-    $Module = Join-Path -Path $($PSScriptRoot) -ChildPath 'Read-FromXML.psm1'
-    $null = Import-Module -FullyQualifiedName $Module -Force
-    $PesterData = ConvertFrom-PesterNUnitXml -InputFile $File
     $PassedTests  = $PesterData.PassedCount
     $FailedTests  = $PesterData.FailedCount
     $NotRunTests  = $PesterData.NotRunCount
     $SkippedTests = $PesterData.SkippedCount
+    $PesterTests  = $PesterData.Tests | Sort-Object Result | Select-Object 'Block',@{N='TestName';E={$_.ExpandedName}},'Result','Duration',@{N='Message';E={$_.ErrorRecord}}
+    # $PesterTests | Out-Default
     #endregion variables
 
     #region navbar
@@ -115,6 +113,26 @@ process{
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
                                 a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
+                            }
+                        }
+                        if($PassedTests -gt 0){
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href "#PassedTests" -content { 'Passed' }
+                            }
+                        }
+                        if($FailedTests -gt 0){
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href "#FailedTests" -content { 'Failed' }
+                            }
+                        }
+                        if($NotRunTests -gt 0){
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href "#NotRunTests" -content { 'NotRun' }
+                            }
+                        }
+                        if($SkippedTests -gt 0){
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href "#SkippedTests" -content { 'Skipped' }
                             }
                         }
                     }
@@ -203,14 +221,56 @@ process{
                 div -id "Content" -Class "$($ContainerStyle)" {
                     article -Id "pester" -Content {
                         $SplatProperties = @{
-                            Object     = $PesterData.Tests
+                            Object     = $PesterTests.Where( { $_.Result -match 'Passed' } )
                             TableClass = 'table table-responsive table-striped table-hover'
                             TheadClass = "thead-dark"
                             Properties = @(
-                                'TestName','Description','Status','Duration','Message'
+                                'Block','TestName','Result','Duration'
                             )
                         }
+                        h2 -id 'PassedTests' {'Passed'} -Style "color:$($HeaderColor)"
                         ConvertTo-PSHtmlTable @SplatProperties
+                    }
+                    article -Id "pester" -Content {
+                        $SplatProperties = @{
+                            Object     = $PesterTests.Where( { $_.Result -match 'Failed' } )
+                            TableClass = 'table table-responsive table-striped table-hover'
+                            TheadClass = "thead-dark"
+                            Properties = @(
+                                'Block','TestName','Result','Duration','Message'
+                            )
+                        }
+                        h2 -id 'FailedTests' {'Failed'} -Style "color:$($HeaderColor)"
+                        ConvertTo-PSHtmlTable @SplatProperties
+                    }
+
+                    if($NotRunTests -gt 0){
+                        article -Id "pester" -Content {
+                            $SplatProperties = @{
+                                Object     = $PesterTests.Where( { $_.Result -match 'NotRun' } )
+                                TableClass = 'table table-responsive table-striped table-hover'
+                                TheadClass = "thead-dark"
+                                Properties = @(
+                                    'Block','TestName','Result','Duration'
+                                )
+                            }
+                            h2 -id 'NotRunTests' {'NotRun'} -Style "color:$($HeaderColor)"
+                            ConvertTo-PSHtmlTable @SplatProperties
+                        }
+                    }
+                    if($SkippedTests -gt 0){
+                        article -Id "pester" -Content {
+                            $SplatProperties = @{
+                                Object     = $PesterTests.Where( { $_.Result -match 'Skipped' } )
+                                TableClass = 'table table-responsive table-striped table-hover'
+                                TheadClass = "thead-dark"
+                                Properties = @(
+                                    'Block','TestName','Result','Duration'
+                                )
+                            }
+                            h2 -id 'SkippedTests' {'Skipped'} -Style "color:$($HeaderColor)"
+                            ConvertTo-PSHtmlTable @SplatProperties
+                        }
                     }
                 }
                 #endregion content
