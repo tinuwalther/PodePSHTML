@@ -227,7 +227,7 @@ if($CurrentOS -eq [OSType]::Windows){
         }
         #endregion
 
-    } -Verbose
+    } -Verbose 
 
 }
 #endregion

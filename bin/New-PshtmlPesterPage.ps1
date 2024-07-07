@@ -255,6 +255,7 @@ process{
                                 )
                             }
                             h2 -id 'NotRunTests' {'NotRun'} -Style "color:$($HeaderColor)"
+                            p {'Excluded Tests by Tag name.'} -Style "color:$($TextColor)"
                             ConvertTo-PSHtmlTable @SplatProperties
                         }
                     }
@@ -269,6 +270,7 @@ process{
                                 )
                             }
                             h2 -id 'SkippedTests' {'Skipped'} -Style "color:$($HeaderColor)"
+                            p {"Excluded Tests by the skip-parameter."} -Style "color:$($TextColor)"
                             ConvertTo-PSHtmlTable @SplatProperties
                         }
                     }
