@@ -122,7 +122,7 @@ if($PSVersionTable.PSVersion.Major -lt 6){
 #endregion
 
 #region Pode server
-if($CurrentOS -eq [OSType]::Windows){
+# if($CurrentOS -eq [OSType]::Windows){
 
     # We'll use 2 threads to handle API requests
     Start-PodeServer -Thread 2 {
@@ -229,5 +229,5 @@ if($CurrentOS -eq [OSType]::Windows){
 
     } -Verbose 
 
-}
+# }
 #endregion
