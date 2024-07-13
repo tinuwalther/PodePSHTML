@@ -37,18 +37,6 @@ Requires pode, PSHTML, PsNetTools, Pester and mySQLite
 Install-Module -Name Pode, PSHTML, mySQLite, PsNetTools, Pester -SkipPublisherCheck -Repository PSGallery -Force -Verbose
 ````
 
-Create a root folder, for example PodePSHTML:
-
-````powershell
-New-Item -Path . -Name PodePSHTML -ItemType Directory -Force -Confirm:False
-````
-
-Change in to the new directory:
-
-````powershell
-Set-Location ./PodePSHTML
-````
-
 Clone the code from my repository:
 
 ````powershell
