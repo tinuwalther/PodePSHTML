@@ -1,7 +1,5 @@
 # PodePSHTML
 
-<!-- TOC -->
-
 - [PodePSHTML](#podepshtml)
     - [Overview](#overview)
         - [Start page](#start-page)
@@ -24,8 +22,6 @@
         - [Re-build SQLite by API](#re-build-sqlite-by-api)
         - [Re-build Pester by API](#re-build-pester-by-api)
         - [Re-build Mermaid by API](#re-build-mermaid-by-api)
-
-<!-- /TOC -->
 
 ## Overview
 
@@ -58,6 +54,12 @@ VERBOSE: Adding Route: [Get] /sqlite  # endpoint for the SQLite page
 VERBOSE: Adding Route: [Get] /pester  # endpoint for the Pester Tests page
 VERBOSE: Adding Route: [Get] /mermaid # endpoint for the Mermaid Diagram page
 ````
+
+Or pull the image from [docker hub](https://hub.docker.com/r/tinuwalther/pode) and run the container.
+
+``docker pull tinuwalther/pode:latest``
+
+``docker run -e TZ="Europe/Zurich" --hostname pshtml --name podepshtml -p 8080:8080 -d tinuwalther/pode``
 
 Open your preffered browser and enter http://localhost:8080/ in the address - enjoy PodePSHTML!
 
