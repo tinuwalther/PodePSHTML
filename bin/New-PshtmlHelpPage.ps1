@@ -122,7 +122,7 @@ process{
                         
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
-                                a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
+                                a -class "nav-link" -href $PSitem -content { $NavbarWebSiteLinks[$PSItem] }
                             }
                         }
                     }
