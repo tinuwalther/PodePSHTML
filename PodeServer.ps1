@@ -12,27 +12,6 @@
 param ()
 
 #region functions
-function Test-IsElevated {
-    [CmdletBinding()]
-    param (
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [OSType]$OS
-    )
-
-    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
-    if($OS -eq [OSType]::Windows){
-        $user = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $ret  = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
-    }elseif($OS -eq [OSType]::Mac){
-        $ret = ((id -u) -eq 0)
-    }
-
-    Write-Verbose $ret
-    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
-    return $ret
-}
-
 function Invoke-FileWatcher {
     [CmdletBinding()]
     param(
@@ -202,35 +181,35 @@ Start-PodeServer -Thread 2 {
 
     Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'API'
         Write-PodeJsonResponse -Value $Response
     }
 
     Add-PodeRoute -Method Post -Path '/api/pode' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'API'
         Write-PodeJsonResponse -Value $Response
     }
 
     Add-PodeRoute -Method Post -Path '/api/asset' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'API'
         Write-PodeJsonResponse -Value $Response
     }
 
     Add-PodeRoute -Method Post -Path '/api/sqlite' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'API' -TsqlQuery $WebEvent.Data
         Write-PodeJsonResponse -Value $Response
     }
 
     Add-PodeRoute -Method Post -Path '/api/pester' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
         param($BinPath, $PesterPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         Import-Module Pester
         # In a container it's possible to pass variables
         $ContainerSplat = @{
@@ -250,14 +229,14 @@ Start-PodeServer -Thread 2 {
 
     Add-PodeRoute -Method Post -Path '/api/mermaid' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API'
         Write-PodeJsonResponse -Value $Response
     }
 
     Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
-        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
         Write-PodeJsonResponse -Value $Response
     }
