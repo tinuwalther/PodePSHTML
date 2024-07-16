@@ -144,135 +144,125 @@ if($PSVersionTable.PSVersion.Major -lt 6){
 
 #region Pode server
 if($CurrentOS -eq [OSType]::Windows){
-    if(Test-IsElevated -OS $CurrentOS) {
-        Write-Host "Running on Windows with elevated Privileges since $(Get-Date)" -ForegroundColor Red
-    }else{
-        Write-Host "Running on Windows and start new session with elevated Privileges" -ForegroundColor Green
-        if($PSVersionTable.PSVersion.Major -lt 6){
-            Start-Process "$psHome\powershell.exe" -Verb Runas -WorkingDirectory $PSScriptRoot -ArgumentList $($MyInvocation.MyCommand.Name)
+    $Address = 'localhost'
+}else{
+    $Address = '*'
+}
+
+# We'll use 2 threads to handle API requests
+Start-PodeServer -Thread 2 {
+    Write-Host "Press Ctrl. + C to terminate the Pode server" -ForegroundColor Yellow
+
+    # Enables Error Logging
+    New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+
+    # Add listener to Port 8080 for Protocol http
+    Add-PodeEndpoint -Address $Address -Port 8080 -Protocol Http
+
+    # Set the engine to use and render .pode files
+    Set-PodeViewEngine -Type Pode
+
+    # Add File Watcher
+    $WatcherPath = Join-Path -Path $($PSScriptRoot) -ChildPath 'upload'
+    Invoke-FileWatcher -Watch $WatcherPath
+    
+    #region Set Pode endpoints for the web pages
+    Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Index.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/pode' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Pode-Server.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Update-Assets.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/sqlite' -ScriptBlock {
+        Write-PodeViewResponse -Path 'SQLite-Data.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/pester' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Pester-Result.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
+    }
+
+    Add-PodeRoute -Method Get -Path '/help' -ScriptBlock {
+        Write-PodeViewResponse -Path 'Help.pode'
+    }
+    #endregion
+
+    #region Set Pode endpoints for the api
+    $BinPath    = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
+    $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pstests.xml'
+
+    Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'API'
+        Write-PodeJsonResponse -Value $Response
+    }
+
+    Add-PodeRoute -Method Post -Path '/api/pode' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'API'
+        Write-PodeJsonResponse -Value $Response
+    }
+
+    Add-PodeRoute -Method Post -Path '/api/asset' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'API'
+        Write-PodeJsonResponse -Value $Response
+    }
+
+    Add-PodeRoute -Method Post -Path '/api/sqlite' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'API' -TsqlQuery $WebEvent.Data
+        Write-PodeJsonResponse -Value $Response
+    }
+
+    Add-PodeRoute -Method Post -Path '/api/pester' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
+        param($BinPath, $PesterPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        Import-Module Pester
+        # In a container it's possible to pass variables
+        $ContainerSplat = @{
+            Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
+            Data   = @{ Destination = 'github.com','sbb.ch'}
+        }
+        $container  = New-PesterContainer @ContainerSplat
+        # Exclude Tests with the Tag NotRun
+        $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -PesterData $PesterData
+        if([String]::IsNullOrEmpty($Response)){
+            Write-PodeJsonResponse -Value 'Could not read pester results' -StatusCode 400
         }else{
-            Start-Process "$psHome\pwsh.exe" -Verb Runas -WorkingDirectory $PSScriptRoot -ArgumentList $($MyInvocation.MyCommand.Name)
+            Write-PodeJsonResponse -Value $Response
         }
     }
-}
 
-if( ($CurrentOS -ne [OSType]::Windows) -or (Test-IsElevated -OS $CurrentOS) ){
+    Add-PodeRoute -Method Post -Path '/api/mermaid' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API'
+        Write-PodeJsonResponse -Value $Response
+    }
 
-    # We'll use 2 threads to handle API requests
-    Start-PodeServer -Thread 2 {
-        Write-Host "Press Ctrl. + C to terminate the Pode server" -ForegroundColor Yellow
+    Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
+        param($BinPath)
+        Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
+        Write-PodeJsonResponse -Value $Response
+    }
+    #endregion
 
-        # Enables Error Logging
-        New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
+} -Verbose 
 
-        # Add listener to Port 8080 for Protocol http
-        Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
-
-        # Set the engine to use and render .pode files
-        Set-PodeViewEngine -Type Pode
-
-        # Add File Watcher
-        $WatcherPath = Join-Path -Path $($PSScriptRoot) -ChildPath 'upload'
-        Invoke-FileWatcher -Watch $WatcherPath
-        
-        #region Set Pode endpoints for the web pages
-        Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Index.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/pode' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Pode-Server.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Update-Assets.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/sqlite' -ScriptBlock {
-            Write-PodeViewResponse -Path 'SQLite-Data.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/pester' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Pester-Result.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
-        }
-
-        Add-PodeRoute -Method Get -Path '/help' -ScriptBlock {
-            Write-PodeViewResponse -Path 'Help.pode'
-        }
-        #endregion
-
-        #region Set Pode endpoints for the api
-        $BinPath    = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
-        $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pstests.xml'
-
-        Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'API'
-            Write-PodeJsonResponse -Value $Response
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/pode' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'API'
-            Write-PodeJsonResponse -Value $Response
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/asset' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'API'
-            Write-PodeJsonResponse -Value $Response
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/sqlite' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'API' -TsqlQuery $WebEvent.Data
-            Write-PodeJsonResponse -Value $Response
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/pester' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
-            param($BinPath, $PesterPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            Import-Module Pester
-            # In a container it's possible to pass variables
-            $ContainerSplat = @{
-                Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
-                Data   = @{ Destination = 'github.com','sbb.ch'}
-            }
-            $container  = New-PesterContainer @ContainerSplat
-            # Exclude Tests with the Tag NotRun
-            $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -PesterData $PesterData
-            if([String]::IsNullOrEmpty($Response)){
-                Write-PodeJsonResponse -Value 'Could not read pester results' -StatusCode 400
-            }else{
-                Write-PodeJsonResponse -Value $Response
-            }
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/mermaid' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API'
-            Write-PodeJsonResponse -Value $Response
-        }
-
-        Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
-            param($BinPath)
-            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
-            Write-PodeJsonResponse -Value $Response
-        }
-        #endregion
-
-    } -Verbose 
-
-}
 #endregion
