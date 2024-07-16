@@ -132,7 +132,7 @@ if($PSVersionTable.PSVersion.Major -lt 6){
         New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
         # Add listener to Port 8080 for Protocol http
-        Add-PodeEndpoint -Address localhost -Port 8080 -Protocol Http
+        Add-PodeEndpoint -Address * -Port 8080 -Protocol Http
 
         # Set the engine to use and render .pode files
         Set-PodeViewEngine -Type Pode
