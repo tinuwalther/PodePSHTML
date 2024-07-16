@@ -122,6 +122,9 @@ process{
                                 li -class "dropdown-item $BootstrapNavbarColor" -Content {
                                     a -class "nav-link" -href "#UpdateMermaid" -content { 'Update Mermaid' }
                                 }
+                            }    
+                            li -class "nav-item" -content {
+                                a -class "nav-link" -href '/help' -content { 'Help' }
                             }                            
                         }
                         # <!-- Navbar Dropdown -->

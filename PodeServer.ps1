@@ -12,6 +12,27 @@
 param ()
 
 #region functions
+function Test-IsElevated {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [OSType]$OS
+    )
+
+    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+    if($OS -eq [OSType]::Windows){
+        $user = [Security.Principal.WindowsIdentity]::GetCurrent()
+        $ret  = (New-Object Security.Principal.WindowsPrincipal $user).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    }elseif($OS -eq [OSType]::Mac){
+        $ret = ((id -u) -eq 0)
+    }
+
+    Write-Verbose $ret
+    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+    return $ret
+}
+
 function Invoke-FileWatcher {
     [CmdletBinding()]
     param(
@@ -122,7 +143,20 @@ if($PSVersionTable.PSVersion.Major -lt 6){
 #endregion
 
 #region Pode server
-# if($CurrentOS -eq [OSType]::Windows){
+if($CurrentOS -eq [OSType]::Windows){
+    if(Test-IsElevated -OS $CurrentOS) {
+        Write-Host "Running on Windows with elevated Privileges since $(Get-Date)" -ForegroundColor Red
+    }else{
+        Write-Host "Running on Windows and start new session with elevated Privileges" -ForegroundColor Green
+        if($PSVersionTable.PSVersion.Major -lt 6){
+            Start-Process "$psHome\powershell.exe" -Verb Runas -WorkingDirectory $PSScriptRoot -ArgumentList $($MyInvocation.MyCommand.Name)
+        }else{
+            Start-Process "$psHome\pwsh.exe" -Verb Runas -WorkingDirectory $PSScriptRoot -ArgumentList $($MyInvocation.MyCommand.Name)
+        }
+    }
+}
+
+if( ($CurrentOS -ne [OSType]::Windows) -or (Test-IsElevated -OS $CurrentOS) ){
 
     # We'll use 2 threads to handle API requests
     Start-PodeServer -Thread 2 {
@@ -164,6 +198,10 @@ if($PSVersionTable.PSVersion.Major -lt 6){
 
         Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
             Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
+        }
+
+        Add-PodeRoute -Method Get -Path '/help' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Help.pode'
         }
         #endregion
 
@@ -225,9 +263,16 @@ if($PSVersionTable.PSVersion.Major -lt 6){
             $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API'
             Write-PodeJsonResponse -Value $Response
         }
+
+        Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
+            Write-PodeJsonResponse -Value $Response
+        }
         #endregion
 
     } -Verbose 
 
-# }
+}
 #endregion

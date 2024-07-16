@@ -135,6 +135,9 @@ process{
                                 a -class "nav-link" -href "#SkippedTests" -content { 'Skipped' }
                             }
                         }
+                        li -class "nav-item" -content {
+                            a -class "nav-link" -href '/help' -content { 'Help' }
+                        }
                     }
 
                 }

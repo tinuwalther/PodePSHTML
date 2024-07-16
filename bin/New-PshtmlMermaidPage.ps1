@@ -129,6 +129,9 @@ process{
                                 }
                             }
                         }
+                        li -class "nav-item" -content {
+                            a -class "nav-link" -href '/help' -content { 'Help' }
+                        }
                     }
 
                 }

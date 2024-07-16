@@ -130,6 +130,9 @@ process{
                                 a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
                             }
                         }
+                        li -class "nav-item" -content {
+                            a -class "nav-link" -href '/help' -content { 'Help' }
+                        }
                     }
 
                 }

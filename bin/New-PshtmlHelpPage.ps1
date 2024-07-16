@@ -6,10 +6,10 @@
     Create new pode web-page with PSHTML. Contains the layout with a jumbotron, navbar, body, content, footer.
     
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmlPodeServerPage.ps1 -Title 'Pode Server'
+    .\PodePSHTML\bin\New-PshtmlHelpPage.ps1 -Title 'Help'
 
 .EXAMPLE
-    .\PodePSHTML\bin\New-PshtmlPodeServerPage.ps1 -Title 'Pode Server' -AssetPath '/assets'
+    .\PodePSHTML\bin\New-PshtmlHelpPage.ps1 -Title 'Help' -AssetPath '/assets'
 #>
 
 #Requires -Modules PSHTML
@@ -72,7 +72,8 @@ process{
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
-        'https://badgerati.github.io/Pode/'                        = 'Pode docs'
+        "#RebuildByFW"  = 'Re-build by FileWatcher'
+        "#RebuildByAPI" = 'Re-build by API'
     }
     #endregion variables
 
@@ -100,35 +101,29 @@ process{
                     ul -class "navbar-nav" -content {
                         
                         # <!-- Navbar Dropdown -->
-                        li -class "nav-item dropdown" -Content {
+                        # li -class "nav-item dropdown" -Content {
 
-                            button -class "nav-link dropdown-toggle btn btn-sm-outline" -Attributes @{
-                                "type"="button"
-                                "data-bs-toggle"="dropdown"
-                            } -Content { 'Pode' }
+                        #     button -class "nav-link dropdown-toggle btn btn-sm-outline" -Attributes @{
+                        #         "type"="button"
+                        #         "data-bs-toggle"="dropdown"
+                        #     } -Content { 'Pode' }
 
-                            ul -class "dropdown-menu $BootstrapNavbarColor" {
+                        #     ul -class "dropdown-menu $BootstrapNavbarColor" {
 
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#InstallPode" -content { 'Install Pode' }
-                                }
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#ConfigurePode" -content { 'Configure Pode' }
-                                }
-                                li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                                    a -class "nav-link" -href "#StartPode" -content { 'Start Pode' }
-                                }
-                            }                            
-                        }
+                        #         li -class "dropdown-item $BootstrapNavbarColor" -Content {
+                        #             a -class "nav-link" -href "#RebuildByFW" -content { 'Re-build by FileWatcher' }
+                        #         }
+                        #         li -class "dropdown-item $BootstrapNavbarColor" -Content {
+                        #             a -class "nav-link" -href "#RebuildByAPI" -content { 'Re-build by API' }
+                        #         }
+                        #     }                            
+                        # }
                         # <!-- Navbar Dropdown -->
                         
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
                                 a -class "nav-link" -href $PSitem -Target _blank -content { $NavbarWebSiteLinks[$PSItem] }
                             }
-                        }
-                        li -class "nav-item" -content {
-                            a -class "nav-link" -href '/help' -content { 'Help' }
                         }
                     }
 
@@ -186,68 +181,120 @@ process{
                 
                     article -Id "Pode" -Content {
 
-                        h1 {'Pode'} -Style "color:$($HeaderColor)"
+                        h1 {'Re-build pages'} -Style "color:$($HeaderColor)"
 
                         p {
-                            "Pode is a Cross-Platform framework to create web servers that host REST APIs, Web Sites, and TCP/SMTP Servers." 
+                            "There are two methods to re-build all the pages." 
                         } -Style "color:$($TextColor)"
 
-                        p {
-                            "It also allows you to render dynamic files using .pode files, which is effectively embedded PowerShell, or other Third-Party template engines. 
-                            Pode also has support for middleware, sessions, authentication, and logging; as well as access and rate limiting features. 
-                            There's also Azure Functions and AWS Lambda support!"
-                        } -Style "color:$($TextColor)"
+                        h2 -id 'RebuildByFW' {'Re-build by FileWatcher'} -Style "color:$($HeaderColor)"
 
                         p {
-                            'Pode and Pode.web is created by Matthew Kelly '
-                            a -href "https://github.com/Badgerati" -Target _blank -content { '(Badgerati)' }
-                            ', licensed under the MIT License.'
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'InstallPode' {'How to install pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'You can install pode from the PowerShell-Gallery.'
+                            "Re-builds the Index.pode page:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'Install-Module -Name Pode -Verbose'
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'ConfigurePode' {'How to configure pode'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            'Create a root folder, for example PodePSHTML:'
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item -Path . -Name PodePSHTML -ItemType Directory -Force -Confirm:$false'
+                            'New-Item ./PodePSHTML/upload -Force -Name index.txt'
                         } -Style "color:$($TextColor)"
 
                         p {
-                            'Change in to the new directory:'
+                            "Re-builds the Pode-Server.pode page:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'Set-Location ./PodePSHTML'
+                            'NeNew-Item ./PodePSHTML/upload -Force -Name pode.txt'
                         } -Style "color:$($TextColor)"
 
                         p {
-                            'Clone the code from my repository:'
+                            "Re-builds the Update-Assets.pode page:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'git clone https://github.com/tinuwalther/PodePSHTML.git'
+                            'New-Item New-Item ./PodePSHTML/upload -Force -Name asset.txt'
                         } -Style "color:$($TextColor)"
-
-                        h2 -id 'StartPode' {'How to start pode'} -Style "color:$($HeaderColor)"
 
                         p {
-                            'Open a PowerShell and enter:'
+                            "Re-builds the SQLite-Data.pode page:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'pwsh ./PodePSHTML/PodeServer.ps1'
+                            p{'`$SqlQuery = ''SELECT * FROM "classic_ESXiHosts" Limit 7'''} -Style "color:$($TextColor)"
+                            p{'`$SqlQuery | Set-Content -Force -Path ./PodePSHTML/upload/sqlite.txt'} -Style "color:$($TextColor)"
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Pester-Result.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item ./PodePSHTML/upload -Force -Name pester.txt'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Mermaid-Diagram.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item ./PodePSHTML/upload -Force -Name mermaid.txt'
+                        } -Style "color:$($TextColor)"
+
+                        h2 -id 'RebuildByAPI' {'Re-build by API'} -Style "color:$($HeaderColor)"
+
+                        p {
+                            "Re-builds the Index.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/index -Method Post'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Pode-Server.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/pode -Method Post'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Update-Assets.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/asset -Method Post'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the SQLite-Data.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            p{'`$SqlQuery = ''SELECT * FROM "classic_ESXiHosts" Limit 7'''} -Style "color:$($TextColor)"
+                            p{'Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body `$SqlQuery'} -Style "color:$($TextColor)"
+                        } 
+
+                        p {
+                            "Re-builds the Pester-Result.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Mermaid-Diagram.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Help.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/help -Method Post'
                         } -Style "color:$($TextColor)"
 
                     }
