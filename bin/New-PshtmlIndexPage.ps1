@@ -12,8 +12,6 @@
     .\PodePSHTML\bin\New-PshtmlIndexPage.ps1 -Title 'Index' -AssetPath '/assets'
 #>
 
-#Requires -Modules PSHTML
-
 [CmdletBinding()]
 param (
     #Titel of the new page, will be used for the file name

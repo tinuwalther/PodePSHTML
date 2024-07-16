@@ -12,8 +12,6 @@
     .\PodePSHTML\bin\New-PshtmlSQLitePage.ps1 -Title 'SQLite Data' -AssetPath '/assets'
 #>
 
-#Requires -Modules PSHTML
-
 [CmdletBinding()]
 param (
     #Titel of the new page, will be used for the file name

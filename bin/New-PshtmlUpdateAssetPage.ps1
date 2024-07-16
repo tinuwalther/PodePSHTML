@@ -12,8 +12,6 @@
     .\PodePSHTML\bin\New-PshtmlUpdateAssetPage.ps1 -Title 'Update Assets' -AssetPath '/assets'
 #>
 
-#Requires -Modules PSHTML
-
 [CmdletBinding()]
 param (
     #Titel of the new page, will be used for the file name

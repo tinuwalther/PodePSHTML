@@ -12,8 +12,6 @@
     .\PodePSHTML\bin\New-PshtmlApiPesterPage.ps1 -Title 'Pester Result' -AssetPath '/assets'
 #>
 
-#Requires -Modules PSHTML
-
 [CmdletBinding()]
 param (
     #Titel of the new page, will be used for the file name

@@ -12,8 +12,6 @@
     .\PodePSHTML\bin\New-PshtmlMermaidPage.ps1 -Title 'Mermaid Diagram' -AssetPath '/assets'
 #>
 
-#Requires -Modules PSHTML
-
 [CmdletBinding()]
 param (
     #Titel of the new page, will be used for the file name
