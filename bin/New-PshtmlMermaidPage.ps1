@@ -186,7 +186,7 @@ process{
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
                     h1 {'VMware ESXi Host Diagram'} -Style "color:$($HeaderColor); text-align: center"
-                    p {'Based on {0}' -f $SqliteQuery} -Style "color:$($TextColor)"
+                    p {'Based on {0}' -f $SqliteQuery} -Style "color:$($TextColor); text-align: center"
                     p { 'VC# = vCenter, C# = Cluster' } -Style "color:$($TextColor); text-align: center"
                 }
 
