@@ -215,7 +215,7 @@ process{
             }
 
             pre {
-                'Re-builds the page: Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post'
+                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body ''SELECT * FROM "classic_ESXiHosts" Limit 7'''
             } -Style "color:$($TextColor)"
             #endregion section
             

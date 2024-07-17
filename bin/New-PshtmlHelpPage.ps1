@@ -303,7 +303,7 @@ process{
             }
 
             pre {
-                'Re-builds the page: Invoke-WebRequest -Uri http://localhost:8080/api/help -Method Post'
+                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/help -Method Post'
             } -Style "color:$($TextColor)"
             #endregion section
             
