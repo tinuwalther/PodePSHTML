@@ -213,6 +213,10 @@ process{
                 #endregion content
                 
             }
+
+            pre {
+                'Re-builds the page: Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post'
+            } -Style "color:$($TextColor)"
             #endregion section
             
         }
@@ -276,5 +280,5 @@ end{
         '{1:0}h {2:0}m {3:0}s {4:000}ms' -f $_.Days, $_.Hours, $_.Minutes, $_.Seconds, $_.Milliseconds
     }
     Write-Verbose $('Finished in:', $Formatted -Join ' ')
-    "Page created: $($PodeView)"
+    Get-Item $OutFile | Select-Object Name, DirectoryName, CreationTime, LastWriteTime | ConvertTo-Json
 }

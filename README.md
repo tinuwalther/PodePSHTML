@@ -27,7 +27,7 @@
 
 This is an example for using pode and PSHTML with mySQLite and Pester v5+.
 
-Requires pode, PSHTML, PsNetTools, Pester and mySQLite
+Requires pode, PSHTML, PsNetTools, Pester and mySQLite (mySQLite supports only Windows and Linux).
 
 ````powershell
 Install-Module -Name Pode, PSHTML, mySQLite, PsNetTools, Pester -SkipPublisherCheck -Repository PSGallery -Force -Verbose
@@ -215,7 +215,6 @@ Invoke-WebRequest -Uri http://localhost:8080/api/index -Method Post
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: Index.pode
 ````
 
 ### Re-build Pode by API
@@ -229,7 +228,6 @@ Invoke-WebRequest -Uri http://localhost:8080/api/pode -Method Post
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: Pode-Server.pode
 ````
 
 ### Re-build Asset by API
@@ -243,7 +241,6 @@ Invoke-WebRequest -Uri http://localhost:8080/api/asset -Method Post
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: Update-Assets.pode
 ````
 
 ### Re-build SQLite by API
@@ -263,7 +260,6 @@ Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body $SqlQ
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: SQLite-Data.pode
 ````
 
 ### Re-build Pester by API
@@ -277,7 +273,6 @@ Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: Pester-Result.pode
 ````
 
 ### Re-build Mermaid by API
@@ -291,5 +286,4 @@ Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post
 ````powershell
 StatusCode        : 200
 StatusDescription : OK
-Content           : Page created: Mermaid-Diagram.pode
 ````

@@ -132,6 +132,10 @@ if($CurrentOS -eq [OSType]::Windows){
 Start-PodeServer -Thread 2 {
     Write-Host "Press Ctrl. + C to terminate the Pode server" -ForegroundColor Yellow
 
+    if($CurrentOS -eq [OSType]::Mac){
+        Write-Host "Re-builds of pages not supportet on $($CurrentOS), because mySQLite support only Windows and Linux" -ForegroundColor Red
+    }
+
     # Enables Error Logging
     New-PodeLoggingMethod -Terminal | Enable-PodeErrorLogging
 
