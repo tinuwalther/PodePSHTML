@@ -211,14 +211,19 @@ Start-PodeServer -Thread 2 {
         Write-PodeJsonResponse -Value $Response
     }
 
-    Add-PodeRoute -Method Post -Path '/api/pester' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
+    Add-PodeRoute -Method Post -Path '/api/pester' -ContentType 'application/json' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
         param($BinPath, $PesterPath)
         if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
         Import-Module Pester
+        if($WebEvent.Data -is [system.array]){
+            $data = $WebEvent.Data
+        }else{
+            $data = @('example.ch')
+        }
         # In a container it's possible to pass variables
         $ContainerSplat = @{
             Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
-            Data   = @{ Destination = 'github.com','sbb.ch'}
+            Data   = @{ Destination = $data}
         }
         $container  = New-PesterContainer @ContainerSplat
         # Exclude Tests with the Tag NotRun

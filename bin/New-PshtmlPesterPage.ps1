@@ -83,6 +83,10 @@ process{
     $NotRunTests  = $PesterData.NotRunCount
     $SkippedTests = $PesterData.SkippedCount
     $PesterTests  = $PesterData.Tests | Sort-Object Result | Select-Object 'Block',@{N='TestName';E={$_.ExpandedName}},'Result','Duration',@{N='Message';E={$_.ErrorRecord}}
+    $PesterInput  = $PesterData.Tests.Data | Group-Object | Select-Object -ExpandProperty Name
+    foreach($item in $PesterInput){
+        $PesterInputData = "$($PesterInputData), $($item)"
+    }
     # $PesterTests | Out-Default
     #endregion variables
 
@@ -191,7 +195,8 @@ process{
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
                     h1 {'Result of some Pester Tests'} -Style "color:$($HeaderColor)"
-                    
+                    p {'Based on input {0}' -f $PesterInputData.TrimStart(', ')} -Style "color:$($TextColor)"
+
                     div -Class "row align-items-center" {
                         # <!-- Column left -->
                         div -Class "col-md" {
@@ -281,7 +286,8 @@ process{
             }
 
             pre {
-                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post'
+                # 'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post'
+                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post -Body ''["sbb.ch","admin.ch"]'''
             } -Style "color:$($TextColor)"
             #endregion section
             
