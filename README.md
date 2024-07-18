@@ -12,9 +12,6 @@
         - [Re-build Index by FileWatcher](#re-build-index-by-filewatcher)
         - [Re-build Pode by FileWatcher](#re-build-pode-by-filewatcher)
         - [Re-build Asset by FileWatcher](#re-build-asset-by-filewatcher)
-        - [Re-build SQLite by FileWatcher](#re-build-sqlite-by-filewatcher)
-        - [Re-build Pester by FileWatcher](#re-build-pester-by-filewatcher)
-        - [Re-build Mermaid by FileWatcher](#re-build-mermaid-by-filewatcher)
     - [API](#api)
         - [Re-build Index by API](#re-build-index-by-api)
         - [Re-build Pode by API](#re-build-pode-by-api)
@@ -145,48 +142,6 @@ Re-builds the Update-Assets.pode page:
 New-Item ./PodePSHTML/upload -Force -Name asset.txt
 ````
 
-### Re-build SQLite by FileWatcher
-
-The FileWatcher monitors for a file sqlite.txt of the type Created or Changed (Move-Item, New-Item).
-
-Re-builds the SQLite-Data.pode page:
-
-````powershell
-New-Item ./PodePSHTML/upload -Force -Name sqlite.txt
-````
-
-Re-builds the SQLite-Data.pode page with the following Sql-Statement:
-
-````powershell
-$SqlQuery = 'SELECT * FROM "classic_ESXiHosts" Limit 10'
-$SqlQuery | Set-Content -Force -Path ./PodePSHTML/upload/sqlite.txt
-````
-
-````powershell
-$SqlQuery = 'SELECT HostName, Version, vCenterServer, Cluster, ConnectionState, Created, Manufacturer, Model, PhysicalLocation FROM "classic_ESXiHosts" Limit 5'
-$SqlQuery | Set-Content -Force -Path ./PodePSHTML/upload/sqlite.txt
-````
-
-### Re-build Pester by FileWatcher
-
-The FileWatcher monitors for a file pester.txt of the type Created or Changed (Move-Item, New-Item).
-
-Re-builds the Pester-Result.pode page:
-
-````powershell
-New-Item ./PodePSHTML/upload -Force -Name pester.txt
-````
-
-### Re-build Mermaid by FileWatcher
-
-The FileWatcher monitors for a file mermaid.txt of the type Created or Changed (Move-Item, New-Item).
-
-Re-builds the Mermaid-Diagram.pode page:
-
-````powershell
-New-Item ./PodePSHTML/upload -Force -Name mermaid.txt
-````
-
 [TOP](#)
 
 ## API
@@ -245,7 +200,7 @@ StatusDescription : OK
 
 ### Re-build SQLite by API
 
-Re-builds the SQLite-Data.pode page with the following Sql-Statement:
+Re-builds the SQLite-Data.pode page with own sql query:
 
 ````powershell
 $SqlQuery = 'SELECT * FROM "classic_ESXiHosts" Limit 5'
@@ -264,7 +219,7 @@ StatusDescription : OK
 
 ### Re-build Pester by API
 
-Re-builds the Pester-Result.pode pagew ith own destinations to test:
+Re-builds the Pester-Result.pode pagew with own destinations to test:
 
 ````powershell
 Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post -Body '["sbb.ch","admin.ch"]'
@@ -277,10 +232,10 @@ StatusDescription : OK
 
 ### Re-build Mermaid by API
 
-Re-builds the Mermaid-Diagram.pode page:
+Re-builds the Mermaid-Diagram.pode page with own sql query:
 
 ````powershell
-Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post
+Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post -Body 'SELECT * FROM "cloud_ESXiHosts" ORDER BY HostName'
 ````
 
 ````powershell
