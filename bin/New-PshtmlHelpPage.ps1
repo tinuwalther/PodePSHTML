@@ -213,7 +213,7 @@ process{
 
                         pre {
                             'Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body ''SELECT * FROM "classic_ESXiHosts" Limit 7'''
-                        } 
+                        } -Style "color:$($TextColor)"
 
                         p {
                             "Re-builds the Pester-Result.pode page:" 
