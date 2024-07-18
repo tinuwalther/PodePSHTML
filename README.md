@@ -248,7 +248,7 @@ StatusDescription : OK
 Re-builds the SQLite-Data.pode page with the following Sql-Statement:
 
 ````powershell
-$SqlQuery = 'SELECT * FROM "classic_ESXiHosts" Limit 7'
+$SqlQuery = 'SELECT * FROM "classic_ESXiHosts" Limit 5'
 Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body $SqlQuery
 ````
 
@@ -264,7 +264,7 @@ StatusDescription : OK
 
 ### Re-build Pester by API
 
-Re-builds the Pester-Result.pode page:
+Re-builds the Pester-Result.pode pagew ith own destinations to test:
 
 ````powershell
 Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post -Body '["sbb.ch","admin.ch"]'

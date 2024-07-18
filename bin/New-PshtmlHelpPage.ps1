@@ -208,7 +208,7 @@ process{
                         } -Style "color:$($TextColor)"
 
                         p {
-                            "Re-builds the SQLite-Data.pode page:" 
+                            "Re-builds the SQLite-Data.pode page with own sql query:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
@@ -216,7 +216,7 @@ process{
                         } -Style "color:$($TextColor)"
 
                         p {
-                            "Re-builds the Pester-Result.pode page:" 
+                            "Re-builds the Pester-Result.pode page with own destinations to test:" 
                         } -Style "color:$($TextColor)"
 
                         pre {
@@ -228,7 +228,7 @@ process{
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post'
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post -Body ''SELECT * FROM "classic_ESXiHosts" ORDER BY HostName'''
                         } -Style "color:$($TextColor)"
 
                         p {

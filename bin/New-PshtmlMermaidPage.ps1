@@ -22,6 +22,10 @@ param (
     [Parameter(Mandatory=$true)]
     [String]$Request,
 
+    #TSQL Statement
+    [Parameter(Mandatory=$false)]
+    [String]$TsqlQuery,
+
     #Asset-path, should be public/assets on the pode server
     [Parameter(Mandatory=$false)]
     [String]$AssetsPath = '/assets'
@@ -73,16 +77,23 @@ process{
     $NavbarWebSiteLinks = [ordered]@{
         'https://mermaid.js.org/syntax/classDiagram.html' = 'Mermaid'
     }
+
     $SQLiteDbRoot = $($PSScriptRoot).Replace('bin','db')
     $SQLiteDbPath = Join-Path $SQLiteDbRoot -ChildPath 'psxi.db'
     $RelationShip = '--'
     
+    if([String]::IsNullOrEmpty($TsqlQuery)){
+        $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName'
+    }else{
+        $SqliteQuery = $TsqlQuery
+    }
+
     if(Test-Path $SQLiteDbPath){
         $SqliteConnection = Open-MySQLiteDB -Path $SQLiteDbPath
         if([String]::IsNullOrEmpty($SqliteConnection)){
             # p { 'Could not connect to SQLite database {0}' -f $SQLiteDbPath }
         }else{
-            $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName'
+            # $SqliteQuery = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName'
             $SQLiteData = Invoke-MySQLiteQuery -Path $SQLiteDbPath -Query $SqliteQuery
         }
     }else{

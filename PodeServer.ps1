@@ -236,10 +236,10 @@ Start-PodeServer -Thread 2 {
         }
     }
 
-    Add-PodeRoute -Method Post -Path '/api/mermaid' -ArgumentList @($BinPath) -ScriptBlock {
+    Add-PodeRoute -Method Post -Path '/api/mermaid' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
         param($BinPath)
         if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API'
+        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API' -TsqlQuery $WebEvent.Data
         Write-PodeJsonResponse -Value $Response
     }
 
