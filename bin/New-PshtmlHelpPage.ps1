@@ -181,61 +181,6 @@ process{
 
                         h1 {'Re-build pages'} -Style "color:$($HeaderColor)"
 
-                        p {
-                            "There are two methods to re-build all the pages." 
-                        } -Style "color:$($TextColor)"
-
-                        h2 -id 'RebuildByFW' {'Re-build by FileWatcher'} -Style "color:$($HeaderColor)"
-
-                        p {
-                            "Re-builds the Index.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item ./PodePSHTML/upload -Force -Name index.txt'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "Re-builds the Pode-Server.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'NeNew-Item ./PodePSHTML/upload -Force -Name pode.txt'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "Re-builds the Update-Assets.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item New-Item ./PodePSHTML/upload -Force -Name asset.txt'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "Re-builds the SQLite-Data.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            p{'`$SqlQuery = ''SELECT * FROM "classic_ESXiHosts" Limit 7'''} -Style "color:$($TextColor)"
-                            p{'`$SqlQuery | Set-Content -Force -Path ./PodePSHTML/upload/sqlite.txt'} -Style "color:$($TextColor)"
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "Re-builds the Pester-Result.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item ./PodePSHTML/upload -Force -Name pester.txt'
-                        } -Style "color:$($TextColor)"
-
-                        p {
-                            "Re-builds the Mermaid-Diagram.pode page:" 
-                        } -Style "color:$($TextColor)"
-
-                        pre {
-                            'New-Item ./PodePSHTML/upload -Force -Name mermaid.txt'
-                        } -Style "color:$($TextColor)"
-
                         h2 -id 'RebuildByAPI' {'Re-build by API'} -Style "color:$($HeaderColor)"
 
                         p {
@@ -267,8 +212,7 @@ process{
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            p{'`$SqlQuery = ''SELECT * FROM "classic_ESXiHosts" Limit 7'''} -Style "color:$($TextColor)"
-                            p{'Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body `$SqlQuery'} -Style "color:$($TextColor)"
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/sqlite -Method Post -Body ''SELECT * FROM "classic_ESXiHosts" Limit 7'''
                         } 
 
                         p {
@@ -276,7 +220,7 @@ process{
                         } -Style "color:$($TextColor)"
 
                         pre {
-                            'Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post'
+                            'Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post -Body ''["sbb.ch","admin.ch"]'''
                         } -Style "color:$($TextColor)"
 
                         p {
@@ -294,7 +238,6 @@ process{
                         pre {
                             'Invoke-WebRequest -Uri http://localhost:8080/api/help -Method Post'
                         } -Style "color:$($TextColor)"
-
                     }
 
                 }

@@ -267,7 +267,7 @@ StatusDescription : OK
 Re-builds the Pester-Result.pode page:
 
 ````powershell
-Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post
+Invoke-WebRequest -Uri http://localhost:8080/api/pester -Method Post -Body '["sbb.ch","admin.ch"]'
 ````
 
 ````powershell
