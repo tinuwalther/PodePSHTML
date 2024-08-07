@@ -185,25 +185,29 @@ process{
                 #region <!-- content -->
                 div -id "Content" -Class "$($ContainerStyle)" {
                     h1 {'VMware ESXi Host Inventory'} -Style "color:$($HeaderColor)"
-                    p {'Based on {0}' -f $SqliteQuery} -Style "color:$($TextColor)"
+                    p {'On load, the page execute the SQL query and generate the table based of {0}.' -f $SQLiteDbPath} -Style "color:$($TextColor)"
+                    p {'Dynamically created table based on ''{0}'' from the last API request.' -f $SqliteQuery} -Style "color:$($TextColor)"
                 }
 
                 div -id "Content" -Class "$($ContainerStyle)" {
                     article -Id "SQLite" -Content {
                         if(Test-Path $SQLiteDbPath){
                             $SqliteConnection = Open-MySQLiteDB -Path $SQLiteDbPath
-                            # $SqliteQuery      = 'SELECT * FROM "classic_ESXiHosts" ORDER BY HostName LIMIT 10'
                             if([String]::IsNullOrEmpty($SqliteConnection)){
                                 p { 'Could not connect to SQLite database {0}' -f $SQLiteDbPath }
                             }else{
-                                $SQLiteData = Invoke-MySQLiteQuery -Path $SQLiteDbPath -Query $SqliteQuery
-                                $SplatProperties = @{
-                                    Object     = $SQLiteData
-                                    TableClass = 'table table-responsive table-striped table-hover'
-                                    TheadClass = "thead-dark"
-                                    # Properties = @('HostName','Version','vCenterServer','Cluster','ConnectionState','Created','Manufacturer','Model','PhysicalLocation')
-                                }
-                                ConvertTo-PSHtmlTable @SplatProperties
+"
+`$(`$SQLiteDbPath = '$SQLiteDbPath')
+`$(`$SqliteQuery = '$SqliteQuery')
+`$(`$SQLiteData = Invoke-MySQLiteQuery -Path `$SQLiteDbPath -Query `$SqliteQuery);
+`$(`$SplatProperties = @{
+    TableClass = 'table table-responsive table-striped table-hover'
+    TheadClass = 'thead-dark'
+    Properties = @('HostName','Version','vCenterServer','Cluster','ConnectionState','Model','PhysicalLocation','Notes')
+    }
+)
+`$(`$SQLiteData | ConvertTo-PSHtmlTable @SplatProperties)
+"
                             }
                         }else{
                             p { 'Could not find {0}' -f $SQLiteDbPath }
@@ -250,7 +254,7 @@ process{
 
                         # <!-- Column right -->
                         div -Class "col-md" {
-                            p {"Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
+                            p {"Dynamically created at `$(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
                         } -Style "color:$TextColor"
                     }
                 }
