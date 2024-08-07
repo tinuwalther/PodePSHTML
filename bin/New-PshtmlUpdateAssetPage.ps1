@@ -70,6 +70,21 @@ process{
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
     #endregion variables
 
+    #region Update Assets
+    $BootstrapCssPath = Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.min.css'
+    $BootstrapJsPath  = Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.bundle.min.js'
+    if($Request -match 'api'){
+        $getbootstrap     = Invoke-WebRequest -Uri 'https://getbootstrap.com/'
+        $regexCss         = 'https\:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap\@[0-9]\.[0-9]\.[0-9]\/dist\/css\/bootstrap\.min\.css'
+        $uriCss           = if($getbootstrap.Content -match $regexCss){$Matches[0]}
+        Invoke-WebRequest -Uri $uriCss -OutFile $BootstrapCssPath -PassThru | Select-Object StatusCode, Content
+
+        $regexJs          = 'https\:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap\@[0-9]\.[0-9]\.[0-9]\/dist\/js\/bootstrap\.bundle\.min\.js'
+        $uriJs            = if($getbootstrap.Content -match $regexJs){$Matches[0]}
+        Invoke-WebRequest -Uri $uriJs -OutFile $BootstrapJsPath -PassThru | Select-Object StatusCode, Content
+    }
+    #endregion Update Assets
+
     #region navbar
     $navbar = {
 
@@ -185,14 +200,12 @@ process{
                         h1 {'Bootstrap'} -Style "color:$($HeaderColor)"
 
                         p {
-                            $BootstrapJsPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.bundle.min.js')
                             if(Test-Path  $BootstrapJsPath){
                                 $BootstrapJsString  = Get-Content -Path $BootstrapJsPath -TotalCount 2
                                 $BootstrapJsVersion = [regex]::Match($BootstrapJsString, '\d\.\d\.\d')
                                 b {"Current JavaScript version: $($BootstrapJsVersion)"}
                             }
                             
-                            $BootstrapCssPath = $(Join-Path -Path $($PSScriptRoot).Replace('bin','public') -ChildPath 'assets/BootStrap/bootstrap.min.css')
                             if(Test-Path  $BootstrapCssPath){
                                 $BootstrapCssString  = Get-Content -Path $BootstrapCssPath -TotalCount 2
                                 $BootstrapCssVersion = [regex]::Match($BootstrapCssString, '\d\.\d\.\d')
@@ -212,8 +225,40 @@ process{
                             "Browse to the URL in link href of the bootstrap.min.css, mark the whole content, and copy & paste the content in to your bootstrap.min.css-file."
                         } -Style "color:$($TextColor)"
 
+                        pre {
+                            "&#36;response = Invoke-WebRequest -Uri 'https://getbootstrap.com/'"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "&#36;regex = 'https\:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap\@[0-9]\.[0-9]\.[0-9]\/dist\/css\/bootstrap\.min\.css'"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "&#36;uri = if(&#36;response.Content -match &#36;regex){&#36;Matches[0]}"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "Invoke-WebRequest -Uri &#36;uri -OutFile &#36;BootstrapCssPath -PassThru"
+                        } -Style "color:$($TextColor)"
+
                         p {
                             "Browse to the URL in script src of the bootstrap.bundle.min.js, mark the whole content, and copy & paste the content in to your bootstrap.bundle.min.js-file."
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            "&#36;response = Invoke-WebRequest -Uri 'https://getbootstrap.com/'"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "&#36;regex = 'https\:\/\/cdn\.jsdelivr\.net\/npm\/bootstrap\@[0-9]\.[0-9]\.[0-9]\/dist\/js\/bootstrap\.bundle\.min\.js'"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "&#36;uri = if(&#36;response.Content -match &#36;regex){&#36;Matches[0]}"
+                        } -Style "color:$($TextColor)"
+                        
+                        pre {
+                            "Invoke-WebRequest -Uri &#36;uri -OutFile &#36;BootstrapJsPath -PassThru"
                         } -Style "color:$($TextColor)"
 
                     }

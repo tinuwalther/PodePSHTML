@@ -62,9 +62,9 @@ Open your preffered browser and enter http://localhost:8080/ in the address - en
 
 ### Start page
 
-![PodePSHTM-Index](./public/img/PodePSHTML.png)
+![PodePSHTM-Index](./public/img/PodePSHTML-4.6.2.png)
 
-This is the default index page. Here you can cklick on the Buttons to visit the given page. You can re-build this page with the FileWatcher- or REST API method.
+This is the default index page, based on bootstrap 4.6.2. Here you can cklick on the Buttons to visit the given page. If the dropdown-navbar does not work, please update the page with the REST API method. You can re-build this page with the FileWatcher- or REST API method.
 
 ### Pode page
 
@@ -82,19 +82,19 @@ This page describe how you can update the assets for Bootstrap, Jquery, Chartjs 
 
 ![PodePSHTM-Index](./public/img/SQLite.png)
 
-This page display some data of a table from a local SQLite database. The database is located at ./PodePSHTML/db/psxi.db and contains the tables classic_ESXiHosts, classic_summary, cloud_ESXiHosts, and cloud_summary to create a query for. You can update this page with the FileWatcher- or REST API method.
+This page display some data of a table from a local SQLite database. The database is located at ./PodePSHTML/db/psxi.db and contains the tables classic_ESXiHosts, classic_summary, cloud_ESXiHosts, and cloud_summary to create a query for. You can update this page with the REST API method.
 
 ### Pester page
 
 ![PodePSHTM-Index](./public/img/Pester0.png)![PodePSHTM-Index](./public/img/Pester1.png)![PodePSHTM-Index](./public/img/Pester2.png)![PodePSHTM-Index](./public/img/Pester3.png)
 
-This page display the result of some Pester Tests. The Script for the PesterTests is located at ./PodePSHTML/bin/Invoke-PesterResult.Tests.You can update this page with the FileWatcher- or REST API method. ps1.
+This page display the result of some Pester Tests. The Script for the PesterTests is located at ./PodePSHTML/bin/Invoke-PesterResult.Tests.You can update this page with the REST API method. ps1.
 
 ### Mermaid page
 
 ![PodePSHTM-Index](./public/img/Mermaid0.png)![PodePSHTM-Index](./public/img/Mermaid1.png)![PodePSHTM-Index](./public/img/Mermaid2.png)
 
-This page display a Diagram of an ESXi Host Inventory from a local SQLite database. The database is located at ./PodePSHTML/db/psxi.db. It runs a query on the table classic_ESXiHosts. You can update this page with the FileWatcher- or REST API method.
+This page display a Diagram of an ESXi Host Inventory from a local SQLite database. The database is located at ./PodePSHTML/db/psxi.db. It runs a query on the table classic_ESXiHosts. You can update this page the with REST API method.
 
 [TOP](#)
 
@@ -136,7 +136,7 @@ New-Item ./PodePSHTML/upload -Force -Name pode.txt
 
 The FileWatcher monitors for a file asset.txt of the type Created or Changed (Move-Item, New-Item).
 
-Re-builds the Update-Assets.pode page:
+Re-builds the Update-Assets.pode page without update the bootstrap files for CSS and JS:
 
 ````powershell
 New-Item ./PodePSHTML/upload -Force -Name asset.txt
@@ -185,9 +185,13 @@ StatusCode        : 200
 StatusDescription : OK
 ````
 
+The new page with the current CSS and JS:
+
+![PodePSHTM-Index](./public/img/PodePSHTML.png)
+
 ### Re-build Asset by API
 
-Re-builds the Update-Assets.pode page:
+Re-builds the Update-Assets.pode page and update the bootstrap files for CSS and JS:
 
 ````powershell
 Invoke-WebRequest -Uri http://localhost:8080/api/asset -Method Post

@@ -50,31 +50,6 @@ function Invoke-FileWatcher {
                             Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
                             . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'FileWatcher'
                         }
-                        'sqlite.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'FileWatcher' -File $($FileEvent.FullPath)
-                        }
-                        'pester.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            Import-Module Pester
-                            # In a container it's possible to pass variables
-                            $ContainerSplat = @{
-                                Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
-                                Data   = @{ Destination = 'github.com','sbb.ch'}
-                            }
-                            $container  = New-PesterContainer @ContainerSplat
-                            # Exclude Tests with the Tag NotRun
-                            $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'FileWatcher' -PesterData $PesterData
-                
-                        }
-                        'mermaid.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'FileWatcher'
-                        }
                     }
 
                     $index   = Join-Path -Path $($PSScriptRoot) -ChildPath 'views/index.pode'
