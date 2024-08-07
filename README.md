@@ -185,10 +185,6 @@ StatusCode        : 200
 StatusDescription : OK
 ````
 
-The new page with the current CSS and JS:
-
-![PodePSHTM-Index](./public/img/PodePSHTML.png)
-
 ### Re-build Asset by API
 
 Re-builds the Update-Assets.pode page and update the bootstrap files for CSS and JS:
@@ -201,6 +197,10 @@ Invoke-WebRequest -Uri http://localhost:8080/api/asset -Method Post
 StatusCode        : 200
 StatusDescription : OK
 ````
+
+The new page with the current CSS and JS:
+
+![PodePSHTM-Index](./public/img/PodePSHTML.png)
 
 ### Re-build SQLite by API
 

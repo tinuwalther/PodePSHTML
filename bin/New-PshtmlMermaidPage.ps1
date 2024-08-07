@@ -224,7 +224,11 @@ process{
                                             div -Class "mermaid" -Style "text-align: center" {
                         
                                                 "classDiagram`n"
-                    
+                                                
+                                                #region Notes on vCenter
+                                                "class VC$($vcNo)_$($vCenterName){ VC$($vcNo) is the vCenter $($vCenterName)() }`n"
+                                                #endregion Notes on vCenter
+
                                                 #region Group Cluster
                                                 $SQLiteData | Where-Object vCenterServer -match $vCenterFullname | Group-Object Cluster | Select-Object -ExpandProperty Name | ForEach-Object {
 
@@ -236,13 +240,21 @@ process{
                                                         "VC$($vcNo)_$($vCenterName) $($RelationShip) VC$($vcNo)C$($ClusterNo)_$($RootCluster)`n"
 
                                                         "VC$($vcNo)_$($vCenterName) : + $($RootCluster)`n"
+                                                            
+                                                        #region Notes on Cluster
+                                                        "class VC$($vcNo)C$($ClusterNo)_$($RootCluster){ C$($ClusterNo) is the Cluster $($RootCluster)() }`n"
+                                                        #endregion Notes on Cluster
 
                                                         #region Group PhysicalLocation
                                                         $SQLiteData | Where-Object vCenterServer -match $vCenterFullname | Where-Object Cluster -match $RootCluster | Group-Object PhysicalLocation | Select-Object -ExpandProperty Name | ForEach-Object {
 
                                                             $PhysicalLocation = $_
                                                             $ObjectCount = $SQLiteData | Where-Object vCenterServer -match $vCenterFullname | Where-Object Cluster -match $RootCluster | Where-Object PhysicalLocation -match $PhysicalLocation | Select-Object -ExpandProperty HostName
-                                                            
+
+                                                            #region Notes on PhysicalLocation
+                                                            "class VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation){ Data center $($PhysicalLocation)() }`n"
+                                                            #endregion Notes on PhysicalLocation
+
                                                             "VC$($vcNo)C$($ClusterNo)_$($RootCluster) : - $($PhysicalLocation), $($ObjectCount.count) ESXi Hosts`n"
 
                                                             "VC$($vcNo)C$($ClusterNo)_$($RootCluster) $($RelationShip) VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation)`n"
@@ -252,7 +264,14 @@ process{
 
                                                                 $HostObject = $SQLiteData | Where-Object HostName -match $($PSItem)
                                                                 $ESXiHost   = $($HostObject.HostName).Split('.')[0]
-                                                                
+                                                                $HostNotes = $SQLiteData | Where-Object HostName -like $($HostObject.HostName) | Select-Object -ExpandProperty Notes
+
+                                                                #region Notes on ESXiHost
+                                                                if($HostNotes){
+                                                                    "class VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation){ $($ESXiHost)($HostNotes) }`n"
+                                                                }
+                                                                #endregion Notes on ESXiHost
+
                                                                 if($HostObject.ConnectionState -eq 'Connected'){
                                                                     $prefix = '+'
                                                                 }elseif($HostObject.ConnectionState -match 'New'){
@@ -292,7 +311,7 @@ process{
             }
 
             pre {
-                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post-Body ''SELECT * FROM "cloud_ESXiHosts" ORDER BY HostName'''
+                'Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post -Body ''SELECT * FROM "cloud_ESXiHosts" ORDER BY HostName'''
             } -Style "color:$($TextColor)"
             #endregion section
             
