@@ -55,6 +55,7 @@
   --bs-body-line-height: 1.5;
   --bs-body-color: #212529;
   --bs-body-bg: #fff;
+  --ps-powershell-color: #012456;
 }
 
 body { 
@@ -66,7 +67,7 @@ header {
   /*background: #033b63;*/
   padding: 20;
   color: var(--bs-gray-200);
-  background: #033b63; 
+  /*background: var(--ps-powershell-color);  */
   font-size: medium;
   display: block;
   overflow: auto;

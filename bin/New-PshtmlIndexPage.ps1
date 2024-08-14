@@ -64,12 +64,13 @@ process{
     $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
+    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
     $CardHeaderColor      = '#fff'
     $CardTitleColor       = '#fff'
     $CardButtonColor      = '#fff'
     $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $Request"
+    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
@@ -128,40 +129,20 @@ process{
     }
     #endregion navbar
 
-    #region header
-    $header = {
-        head {
-            meta -charset 'UTF-8'
-            meta -name 'author'      -content "Martin Walther - @tinuwalther"  
-            meta -name "keywords"    -content_tag "Pode, PSHTML, PowerShell, Mermaid Diagram"
-            meta -name "description" -content_tag "Builds beatuifull HTML-Files with PSHTML from native PowerShell-Scripts"
-
-            # CSS
-            Link -rel stylesheet -href $(Join-Path -Path $AssetsPath -ChildPath 'BootStrap/bootstrap.min.css')
-            Link -rel stylesheet -href $(Join-Path -Path $AssetsPath -ChildPath 'style/style.css')
-
-            # Scripts
-            Script -src $(Join-Path -Path $AssetsPath -ChildPath 'BootStrap/bootstrap.bundle.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'Jquery/jquery.min.js')
-            # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
-            # Script {mermaid.initialize({startOnLoad:true})}
-
-            title "#PSXi $($HeaderTitle)"
-            Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
-        } 
-    }
-    #endregion header
-
     #region body
     $body = {
         body {
 
+            #region Check TimeStamp and build the badge
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
+            #endregion
+
             #region <!-- header -->
             header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:#033b63" -content {
+                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
                     p { h1 "#PSXi $($HeaderTitle) Page" }
                     #p { h2 $HeaderCaption }  
-                    p { $BodyDescription }  
+                    p { "$($BodyDescription) The page is $($out)" }  
                 }
             }
             #endregion header
@@ -174,8 +155,8 @@ process{
                 #region <!-- content -->
                 div -Class $ContainerStyleFluid {
                     article -Id "Boxes" -Content {
-                        p {''}
-
+                        p {' '}
+                        
                         div -class "row row-cols-md-5 mb-5 text-center" -Content {
 
                             #<!-- Card 1 >> Pode -->
@@ -186,7 +167,7 @@ process{
                                     } -Style "color:$CardHeaderColor"
                                     div -class "card-body" -Content {
                                         h1 -class "card-title" -Content {'Pode'} -Style "color:$CardTitleColor"
-                                        p -Content {'Display how to use pode.'}
+                                        p -Content {'Shows how to use pode.'}
                                         a -class "w-100 btn btn-lg btn-danger" -href "/pode" -Content {'Open'} -Style "color:$CardButtonColor"
                                     }
                                 }
@@ -199,7 +180,7 @@ process{
                                     } -Style "color:$CardHeaderColor"
                                     div -class "card-body" -Content {
                                         h1 -class "card-title" -Content {'Assets'} -Style "color:$CardTitleColor"
-                                        p -Content {'Display how to update the assets.'}
+                                        p -Content {'Shows how to update the assets.'}
                                         a -class "w-100 btn btn-lg btn-primary" -href "/update" -Content {'Open'} -Style "color:$CardButtonColor"
                                     }
                                 }
@@ -245,9 +226,9 @@ process{
                             }
 
                         }
-
+                        
                         pre {
-                            'New-Item ./PodePSHTML/upload -Force -Name index.txt | pode.txt | asset.txt # re-builds the equivalent pode page'
+                            "New-Item ./PodePSHTML/upload -Force -Name index.txt | pode.txt | asset.txt # re-builds the equivalent pode page. On load, the page calculate the age of it self and display a green or red badge."
                         } -Style "color:$($TextColor)"
     
                     }
@@ -260,49 +241,12 @@ process{
         }
     }
     #endregion body
-    
-    #region footer
-    $footer = {
-        div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
-            Footer {
 
-                div -Class $ContainerStyleFluid {
-                    div -Class "row align-items-center" {
-
-                        # <!-- Column left -->
-                        div -Class "col-md" {
-                            p {
-                                a -href "#" -Class "btn-sm btn btn-outline-success" -content { "I $([char]9829) PS >" }
-                            }
-                        }
-
-                        # <!-- Column middle -->
-                        div -Class "col-md" {
-                            p {
-                                $FooterSummary
-                                a -href "https://www.powershellgallery.com/packages/Pode" -Target _blank -content { "pode" }
-                                ' and '
-                                a -href "https://www.powershellgallery.com/packages/PSHTML" -Target _blank -content { "PSHTML" }
-                            }
-                        }
-
-                        # <!-- Column right -->
-                        div -Class "col-md" {
-                            p {"Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
-                        } -Style "color:$TextColor"
-                    }
-                }
-        
-            }
-        }
-    }
-    #endregion footer
-    
     #region HTML
     $HTML = html {
-        Invoke-Command -ScriptBlock $header
+        . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/head.ps1')
         Invoke-Command -ScriptBlock $body
-        Invoke-Command -ScriptBlock $footer
+        . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html
 

@@ -68,9 +68,10 @@ process{
     $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
+    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
     $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $Request"
+    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
     $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
@@ -178,13 +179,17 @@ process{
     #region body
     $body = {
         body {
+            
+            #region Check TimeStamp and build the badge
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
+            #endregion
 
             #region <!-- header -->
             header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:#033b63" -content {
+                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
                     p { h1 "#PSXi $($HeaderTitle)" }
                     #p { h2 $HeaderCaption }  
-                    p { $BodyDescription }  
+                    p { "$($BodyDescription) The page is $($out)" }   
                 }
             }
             #endregion header
@@ -267,9 +272,9 @@ process{
                                                                 $HostNotes = $SQLiteData | Where-Object HostName -like $($HostObject.HostName) | Select-Object -ExpandProperty Notes
 
                                                                 #region Notes on ESXiHost
-                                                                if($HostNotes){
-                                                                    "class VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation){ $($ESXiHost)($HostNotes) }`n"
-                                                                }
+                                                                # if($HostNotes){
+                                                                #     "class VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation){ $($ESXiHost)($HostNotes) }`n"
+                                                                # }
                                                                 #endregion Notes on ESXiHost
 
                                                                 if($HostObject.ConnectionState -eq 'Connected'){
@@ -280,7 +285,11 @@ process{
                                                                     $prefix = '-'
                                                                 }
                 
-                                                                "VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation) : $($prefix) $($ESXiHost), ESXi $($HostObject.Version)`n"
+                                                                if($HostNotes){
+                                                                    "VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation) : $($prefix) $($ESXiHost), ESXi $($HostObject.Version), $($HostNotes)`n"
+                                                                }else{
+                                                                    "VC$($vcNo)C$($ClusterNo)_$($PhysicalLocation) : $($prefix) $($ESXiHost), ESXi $($HostObject.Version)`n"
+                                                                }
                 
                                                             }
                                                             #endregion Group HostName
@@ -319,48 +328,11 @@ process{
     }
     #endregion body
 
-    #region footer
-    $footer = {
-        div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
-            Footer {
-
-                div -Class $ContainerStyleFluid {
-                    div -Class "row align-items-center" {
-
-                        # <!-- Column left -->
-                        div -Class "col-md" {
-                            p {
-                                a -href "#" -Class "btn-sm btn btn-outline-success" -content { "I $([char]9829) PS >" }
-                            }
-                        }
-
-                        # <!-- Column middle -->
-                        div -Class "col-md" {
-                            p {
-                                $FooterSummary
-                                a -href "https://www.powershellgallery.com/packages/Pode" -Target _blank -content { "pode" }
-                                ' and '
-                                a -href "https://www.powershellgallery.com/packages/PSHTML" -Target _blank -content { "PSHTML" }
-                            }
-                        }
-
-                        # <!-- Column right -->
-                        div -Class "col-md" {
-                            p {"Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')"}
-                        } -Style "color:$TextColor"
-                    }
-                }
-        
-            }
-        }
-    }
-    #endregion footer
-
     #region HTML
     $HTML = html {
         Invoke-Command -ScriptBlock $header
         Invoke-Command -ScriptBlock $body
-        Invoke-Command -ScriptBlock $footer
+        . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html
 
