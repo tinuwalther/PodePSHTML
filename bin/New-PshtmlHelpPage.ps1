@@ -63,14 +63,10 @@ process{
     $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
-    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
-    $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
-    $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
-
     $NavbarWebSiteLinks = [ordered]@{
+        # Anchor        = Navbar menu name
         "#RebuildByFW"  = 'Re-build by FileWatcher'
         "#RebuildByAPI" = 'Re-build by API'
     }
@@ -98,34 +94,16 @@ process{
                 #region <!-- Navbar links -->
                 div -class "collapse navbar-collapse" -id "collapsibleNavbar" -Content {
                     ul -class "navbar-nav" -content {
-                        
-                        # <!-- Navbar Dropdown -->
-                        # li -class "nav-item dropdown" -Content {
-
-                        #     button -class "nav-link dropdown-toggle btn btn-sm-outline" -Attributes @{
-                        #         "type"="button"
-                        #         "data-bs-toggle"="dropdown"
-                        #     } -Content { 'Pode' }
-
-                        #     ul -class "dropdown-menu $BootstrapNavbarColor" {
-
-                        #         li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                        #             a -class "nav-link" -href "#RebuildByFW" -content { 'Re-build by FileWatcher' }
-                        #         }
-                        #         li -class "dropdown-item $BootstrapNavbarColor" -Content {
-                        #             a -class "nav-link" -href "#RebuildByAPI" -content { 'Re-build by API' }
-                        #         }
-                        #     }                            
-                        # }
-                        # <!-- Navbar Dropdown -->
-                        
                         $NavbarWebSiteLinks.Keys | ForEach-Object {
                             li -class "nav-item" -content {
                                 a -class "nav-link" -href $PSitem -content { $NavbarWebSiteLinks[$PSItem] }
                             }
                         }
-                    }
+                        li -class "nav-item" -content {
+                            a -class "nav-link" -href '/help' -content { 'Help' }
+                        }
 
+                    }
                 }
                 #endregion Navbar links
             }
@@ -138,20 +116,9 @@ process{
     #region body
     $body = {
         body {
-            
-            #region Check TimeStamp and build the badge
-            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
-            #endregion
 
-            #region <!-- header -->
-            header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
-                    p { h1 "#PSXi $($HeaderTitle)" }
-                    #p { h2 $HeaderCaption }  
-                    p { "$($BodyDescription) The page is $($out)" }   
-                }
-            }
-            #endregion header
+            # includes code from external script for --> header
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/header.ps1')
             
             #region <!-- section -->
             section -id "section" -Content {  
@@ -164,6 +131,37 @@ process{
                     article -Id "Pode" -Content {
 
                         h1 {'Re-build pages'} -Style "color:$($HeaderColor)"
+
+                        h2 -id 'RebuildByFW' {'Re-build by FileWatcher'} -Style "color:$($HeaderColor)"
+
+                        p {
+                            "Re-build by FileWatcher is not supported on a Container!" 
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Index.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item ./PodePSHTML/upload -Force -Name index.txt'
+                        } -Style "color:$($TextColor)"
+
+                        p {
+                            "Re-builds the Pode-Server.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item ./PodePSHTML/upload -Force -Name pode.txt'
+                        } -Style "color:$($TextColor)"
+
+                        
+                        p {
+                            "Re-builds the Update-Assets.pode page:" 
+                        } -Style "color:$($TextColor)"
+
+                        pre {
+                            'New-Item ./PodePSHTML/upload -Force -Name asset.txt'
+                        } -Style "color:$($TextColor)"
 
                         h2 -id 'RebuildByAPI' {'Re-build by API'} -Style "color:$($HeaderColor)"
 
@@ -240,8 +238,12 @@ process{
 
     #region HTML
     $HTML = html {
+        # includes code from external script for --> head
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/head.ps1')
+
         Invoke-Command -ScriptBlock $body
+
+        # includes code from external script for --> footer
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html

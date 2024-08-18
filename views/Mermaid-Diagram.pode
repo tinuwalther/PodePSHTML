@@ -1,10 +1,10 @@
-<html ><head ><meta charset="UTF-8"  /><meta name="author" content="Martin Walther - @tinuwalther"  /><meta name="keywords" content="Pode, PSHTML, PowerShell, Mermaid Diagram"  /><meta name="description" content="Builds beatuifull HTML-Files with PSHTML from native PowerShell-Scripts"  /><link rel="stylesheet" href="\assets\BootStrap\bootstrap.min.css"  /><link rel="stylesheet" href="\assets\style\style.css"  /><script src="\assets\BootStrap\bootstrap.bundle.min.js"  ></script><script src="\assets\mermaid\mermaid.min.js"  ></script><script src="mermaid.initialize({startOnLoad:true})"  ></script><title >#PSXi Mermaid Diagram</title><link type="image/x-icon" href="/assets/img/favicon.ico" rel="icon"  /></head><Body ><header ><div Style="padding:15; background-color:#012456" Class="jumbotron text-center" Id="j1"  ><p ><h1 >#PSXi Mermaid Diagram</h1></p><p >I ♥ PS Pode > This is an example for using pode and PSHTML, requested by API. The page is 
+<html ><head ><meta charset="UTF-8"  /><meta name="author" content="Martin Walther - @tinuwalther"  /><meta name="keywords" content="Pode, PSHTML, PowerShell, Mermaid Diagram"  /><meta name="description" content="Builds beatuifull HTML-Files with PSHTML from native PowerShell-Scripts"  /><link href="\assets\BootStrap\bootstrap.min.css" rel="stylesheet"  /><link href="\assets\style\style.css" rel="stylesheet"  /><script src="\assets\BootStrap\bootstrap.bundle.min.js"  ></script><script src="\assets\mermaid\mermaid.min.js"  ></script><script src="mermaid.initialize({startOnLoad:true})"  ></script><title >#PSXi Mermaid Diagram</title><link href="/assets/img/favicon.ico" rel="icon" type="image/x-icon"  /></head><Body ><header ><div Class="jumbotron text-center" Id="j1" Style="padding:15; background-color:#012456"  ><p ><h1 >#PSXi Mermaid Diagram</h1></p><p >I ♥ PS Pode > This is an example for using pode and PSHTML, requested by API. The page is 
 $(if(Test-Path 'D:\github.com\PodePSHTML\views\Mermaid-Diagram.pode'){
     $($regex = '[0-9]{4}\-[0-9]{2}\-[0-9]{2}\s[0-9]{2}\:[0-9]{2}\:[0-9]{2}')
     $($index = Get-Content 'D:\github.com\PodePSHTML\views\Mermaid-Diagram.pode')
     $($created = Get-Date ([regex]::Match($index, $regex).Value))
     $($diffTime = New-TimeSpan -Start $created -End (Get-Date))
-    $(if($diffTime.TotalMinutes -gt 61 -and $diffTime.TotalMinutes -lt 1440){
+    $(if($diffTime.TotalMinutes -gt 60 -and $diffTime.TotalMinutes -lt 1440){
         # $badge = 'badge badge-warning' # Bootstrap v4.6.x
         $badge = 'badge text-bg-warning' # Bootstrap v5.3.x
     }elseif($diffTime.TotalMinutes -gt 1440){
@@ -14,9 +14,9 @@ $(if(Test-Path 'D:\github.com\PodePSHTML\views\Mermaid-Diagram.pode'){
         # $badge = 'badge badge-success' # Bootstrap v4.6.x 
         $badge = 'badge text-bg-success' # Bootstrap v5.3.x
     })
-    $(span -class $badge {'{0} Days {1} Hours {2} Minutes old' -f $diffTime.Days, $diffTime.Hours, $diffTime.Minutes})
+    $(span -class $badge {'{0} Days {1} Hours {2} Minutes' -f $diffTime.Days, $diffTime.Hours, $diffTime.Minutes})
 })
-</p></div></header><Section Id="section"  ><nav Class="navbar navbar-expand-sm bg-dark navbar-dark sticky-top"  ><div Class="container-fluid"  ><a Target="_self" href="/" Class="navbar-brand"  >»HOME</a><button Class="navbar-toggler" type="button" data-bs-target="#collapsibleNavbar" data-bs-toggle="collapse"  ><span Class="navbar-toggler-icon"  ></span></button><div Id="collapsibleNavbar" Class="collapse navbar-collapse"  ><ul Class="navbar-nav"  ><li Class="nav-item"  ><a Target="_blank" href="https://mermaid.js.org/syntax/classDiagram.html" Class="nav-link"  >Mermaid</a></li><li Class="nav-item"  ><a Target="_self" href="#vCSA400" Class="nav-link"  >vCSA400</a></li><li Class="nav-item"  ><a Target="_self" href="#vCSA410" Class="nav-link"  >vCSA410</a></li><li Class="nav-item"  ><a Target="_self" href="#vCSA420" Class="nav-link"  >vCSA420</a></li><li Class="nav-item"  ><a Target="_self" href="#vCSA421" Class="nav-link"  >vCSA421</a></li><li Class="nav-item"  ><a Target="_self" href="/help" Class="nav-link"  >Help</a></li></ul></div></div></nav><div Id="Content" Class="Container"  ><h1 Style="color:#212529; text-align: center"  >VMware ESXi Host Diagram</h1><p Style="color:#000; text-align: center"  >Based on SELECT * FROM "classic_ESXiHosts" ORDER BY HostName</p><p Style="color:#000; text-align: center"  >VC# = vCenter, C# = Cluster</p></div><div Style="color:#000" Class="Container" Id="Content"  ><article Id="SQLite"  ><div Id="Content" Class=""  ><article Id="mermaid"  ><h2 Style="color:#198754; text-align: center" Id="vCSA400"  >vCenter vCSA400</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA400</p><div Style="text-align: center" Class="mermaid"  >classDiagram
+ old.</p></div></header><Section Id="section"  ><nav Class="navbar navbar-expand-sm bg-dark navbar-dark sticky-top"  ><div Class="container-fluid"  ><a Target="_self" Class="navbar-brand" href="/"  >»HOME</a><button Class="navbar-toggler" data-bs-target="#collapsibleNavbar" data-bs-toggle="collapse" type="button"  ><span Class="navbar-toggler-icon"  ></span></button><div Class="collapse navbar-collapse" Id="collapsibleNavbar"  ><ul Class="navbar-nav"  ><li Class="nav-item"  ><a Class="nav-link" Target="_blank" href="https://mermaid.js.org/syntax/classDiagram.html"  >Mermaid</a></li><li Class="nav-item"  ><a Target="_self" Class="nav-link" href="#vCSA400"  >vCSA400</a></li><li Class="nav-item"  ><a Target="_self" Class="nav-link" href="#vCSA410"  >vCSA410</a></li><li Class="nav-item"  ><a Target="_self" Class="nav-link" href="#vCSA420"  >vCSA420</a></li><li Class="nav-item"  ><a Target="_self" Class="nav-link" href="#vCSA421"  >vCSA421</a></li><li Class="nav-item"  ><a Target="_self" Class="nav-link" href="/help"  >Help</a></li></ul></div></div></nav><div Class="Container" Id="Content"  ><h1 Style="color:#212529; text-align: center"  >VMware ESXi Host Diagram</h1><p Style="color:#000; text-align: center"  >Based on SELECT * FROM "classic_ESXiHosts" ORDER BY HostName</p><p Style="color:#000; text-align: center"  >VC# = vCenter, C# = Cluster</p></div><div Class="Container" Id="Content" Style="color:#000"  ><article Id="SQLite"  ><div Class="" Id="Content"  ><article Id="mermaid"  ><h2 Id="vCSA400" Style="color:#198754; text-align: center"  >vCenter vCSA400</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA400</p><div Class="mermaid" Style="text-align: center"  >classDiagram
 class VC1_vCSA400{ VC1 is the vCenter vCSA400() }
 VC1_vCSA400 -- VC1C1_Linux
 VC1_vCSA400 : + Linux
@@ -42,7 +42,7 @@ class VC1C2_North{ Data center North() }
 VC1C2_Windows : - North, 1 ESXi Hosts
 VC1C2_Windows -- VC1C2_North
 VC1C2_North : + ESXi8998, ESXi 6.7.0
-</div></article></div><hr /><div Id="Content" Class=""  ><article Id="mermaid"  ><h2 Style="color:#198754; text-align: center" Id="vCSA410"  >vCenter vCSA410</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA410</p><div Style="text-align: center" Class="mermaid"  >classDiagram
+</div></article></div><hr /><div Class="" Id="Content"  ><article Id="mermaid"  ><h2 Id="vCSA410" Style="color:#198754; text-align: center"  >vCenter vCSA410</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA410</p><div Class="mermaid" Style="text-align: center"  >classDiagram
 class VC2_vCSA410{ VC2 is the vCenter vCSA410() }
 VC2_vCSA410 -- VC2C1_Linux
 VC2_vCSA410 : + Linux
@@ -65,7 +65,7 @@ VC2C2_Windows : - North, 2 ESXi Hosts
 VC2C2_Windows -- VC2C2_North
 VC2C2_North : o ESXi8218, ESXi 7.0.3, will be installed in 3 weeks
 VC2C2_North : + ESXi8220, ESXi 6.7.0
-</div></article></div><hr /><div Id="Content" Class=""  ><article Id="mermaid"  ><h2 Style="color:#198754; text-align: center" Id="vCSA420"  >vCenter vCSA420</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA420</p><div Style="text-align: center" Class="mermaid"  >classDiagram
+</div></article></div><hr /><div Class="" Id="Content"  ><article Id="mermaid"  ><h2 Id="vCSA420" Style="color:#198754; text-align: center"  >vCenter vCSA420</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA420</p><div Class="mermaid" Style="text-align: center"  >classDiagram
 class VC3_vCSA420{ VC3 is the vCenter vCSA420() }
 VC3_vCSA420 -- VC3C1_Weblogic
 VC3_vCSA420 : + Weblogic
@@ -83,7 +83,7 @@ class VC3C1_West{ Data center West() }
 VC3C1_Weblogic : - West, 1 ESXi Hosts
 VC3C1_Weblogic -- VC3C1_West
 VC3C1_West : + ESXi1902, ESXi 6.7.0
-</div></article></div><hr /><div Id="Content" Class=""  ><article Id="mermaid"  ><h2 Style="color:#198754; text-align: center" Id="vCSA421"  >vCenter vCSA421</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA421</p><div Style="text-align: center" Class="mermaid"  >classDiagram
+</div></article></div><hr /><div Class="" Id="Content"  ><article Id="mermaid"  ><h2 Id="vCSA421" Style="color:#198754; text-align: center"  >vCenter vCSA421</h2><p Style="color:#000; text-align: center"  >Class-diagram for the vCenter Server vCSA421</p><div Class="mermaid" Style="text-align: center"  >classDiagram
 class VC4_vCSA421{ VC4 is the vCenter vCSA421() }
 VC4_vCSA421 -- VC4C1_OracleDB
 VC4_vCSA421 : + OracleDB
@@ -96,4 +96,4 @@ class VC4C1_North{ Data center North() }
 VC4C1_OracleDB : - North, 1 ESXi Hosts
 VC4C1_OracleDB -- VC4C1_North
 VC4C1_North : + ESXi8911, ESXi 6.7.0
-</div></article></div><hr /></article></div></Section><pre Style="color:#000"  >Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post -Body 'SELECT * FROM "cloud_ESXiHosts" ORDER BY HostName'</pre></Body><div Style="background-color:#343a40" Class="container-fluid"  ><footer ><div Class="container-fluid"  ><div Class="row align-items-center"  ><div Class="col-md"  ><p ><a Target="_self" href="#" Class="btn-sm btn btn-outline-success"  >I ♥ PS ></a></p></div><div Class="col-md"  ><p >Based on <a Target="_blank" href="https://www.powershellgallery.com/packages/Pode"  >pode</a> and <a Target="_blank" href="https://www.powershellgallery.com/packages/PSHTML"  >PSHTML</a></p></div><div Style="color:#000" Class="col-md"  ><p >Created at 2024-08-14 16:51:29</p></div></div></div></footer></div></html>
+</div></article></div><hr /></article></div></Section><pre Style="color:#000"  >Re-builds the page: I ♥ PS > Invoke-WebRequest -Uri http://localhost:8080/api/mermaid -Method Post -Body 'SELECT * FROM "cloud_ESXiHosts" ORDER BY HostName'</pre></Body><div Class="container-fluid" Style="background-color:#343a40"  ><footer ><div Class="container-fluid"  ><div Class="row align-items-center"  ><div Class="col-md"  ><p ><a Target="_self" Class="btn-sm btn btn-outline-success" href="#"  >I ♥ PS ></a></p></div><div Class="col-md"  ><p ><a Target="_blank" href="https://www.powershellgallery.com/packages/Pode"  >pode</a> and <a Target="_blank" href="https://www.powershellgallery.com/packages/PSHTML"  >PSHTML</a></p></div><div Class="col-md" Style="color:#000"  ><p >Created at 2024-08-18 12:41:00</p></div></div></div></footer></div></html>

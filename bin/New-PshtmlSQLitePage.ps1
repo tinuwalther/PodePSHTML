@@ -152,13 +152,7 @@ process{
             #endregion
 
             #region <!-- header -->
-            header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
-                    p { h1 "#PSXi $($HeaderTitle)" }
-                    #p { h2 $HeaderCaption }  
-                    p { "$($BodyDescription) The page is $($out)" }   
-                }
-            }
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/header.ps1')
             #endregion header
             
             #region <!-- section -->

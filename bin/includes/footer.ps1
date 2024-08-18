@@ -1,3 +1,6 @@
+# To includes code from external script for --> footer:
+# . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
+
 #region footer
 div -Class $ContainerStyleFluid -Style "background-color:#343a40" {
     Footer {

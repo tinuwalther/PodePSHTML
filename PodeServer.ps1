@@ -12,7 +12,7 @@
 param ()
 
 #region functions
-function Invoke-FileWatcher {
+function Initialize-FileWatcher {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
@@ -20,62 +20,202 @@ function Invoke-FileWatcher {
         [String]$Watch
     )
 
-    $function = $($MyInvocation.MyCommand.Name)
-    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)", $Watch -Join ' ')
+    begin{
+        $function = $($MyInvocation.MyCommand.Name)
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)", $Watch -Join ' ')
+    }
 
-    Add-PodeFileWatcher -Name PodePSHTML -Path $Watch -ScriptBlock {
+    process{
 
-        Write-Verbose "$($FileEvent.Name) -> $($FileEvent.Type) -> $($FileEvent.FullPath)"
+        Add-PodeFileWatcher -Name PodePSHTML -Path $Watch -ScriptBlock {
 
-        $BinPath  = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
+            Write-Verbose "$($FileEvent.Name) -> $($FileEvent.Type) -> $($FileEvent.FullPath)"
 
-        try{
-            "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
-            switch -Regex ($FileEvent.Type){
-                'Created|Changed' {
-                    # Move-Item, New-Item
-                    switch -Regex ($FileEvent.Name){
-                        'index.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'FileWatcher'
+            $BinPath  = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
+
+            try{
+                "        - Received: $($FileEvent.Name) at $($FileEvent.Timestamp)" | Out-Default
+                switch -Regex ($FileEvent.Type){
+                    'Created|Changed' {
+                        # Move-Item, New-Item
+                        switch -Regex ($FileEvent.Name){
+                            'index.txt' {
+                                Start-Sleep -Seconds 3
+                                Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                                . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'FileWatcher'
+                            }
+                            'pode.txt' {
+                                Start-Sleep -Seconds 3
+                                Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                                . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'FileWatcher'
+                            }
+                            'asset.txt' {
+                                Start-Sleep -Seconds 3
+                                Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
+                                . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'FileWatcher'
+                            }
                         }
-                        'pode.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'FileWatcher'
-                        }
-                        'asset.txt' {
-                            Start-Sleep -Seconds 3
-                            Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force
-                            . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'FileWatcher'
-                        }
+
+                        $index   = Join-Path -Path $($PSScriptRoot) -ChildPath 'views/index.pode'
+                        $content = Get-Content $index
+                        $content -replace 'Created at\s\d{4}\-\d{2}\-\d{2}\s\d{2}\:\d{2}\:\d{2}', "Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')" | Set-Content -Path $index -Force -Confirm:$false
+
+                    }
+                    'Deleted' {
+                        # Move-Item, Remove-Item
+                    }
+                    'Renamed' {
+                        # Rename-Item
+                    }
+                    default {
+                        "        - $($FileEvent.Type): is not supported" | Out-Default
                     }
 
-                    $index   = Join-Path -Path $($PSScriptRoot) -ChildPath 'views/index.pode'
-                    $content = Get-Content $index
-                    $content -replace 'Created at\s\d{4}\-\d{2}\-\d{2}\s\d{2}\:\d{2}\:\d{2}', "Created at $(Get-Date -f 'yyyy-MM-dd HH:mm:ss')" | Set-Content -Path $index -Force -Confirm:$false
-
                 }
-                'Deleted' {
-                    # Move-Item, Remove-Item
-                }
-                'Renamed' {
-                    # Rename-Item
-                }
-                default {
-                    "        - $($FileEvent.Type): is not supported" | Out-Default
-                }
-
+            }catch{
+                Write-Warning "$($function): An error occured on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
+                $Error.Clear()
             }
-        }catch{
-            Write-Warning "$($function): An error occured on line $($_.InvocationInfo.ScriptLineNumber): $($_.Exception.Message)"
-            $Error.Clear()
-        }
 
-    } -Verbose
+        } -Verbose
+
+    }
+
+    end{
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+    }
+}
+
+function Initialize-WebEndpoints {
+    [CmdletBinding()]
+    param()
+
+    begin{
+        $function = $($MyInvocation.MyCommand.Name)
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)", $Watch -Join ' ')
+    }
+
+    process{
+        # Index
+        Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Index.pode'
+        }
+        # Pode Server
+        Add-PodeRoute -Method Get -Path '/pode' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Pode-Server.pode'
+        }
+        # Update Assets
+        Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Update-Assets.pode'
+        }
+        # SQLite Data
+        Add-PodeRoute -Method Get -Path '/sqlite' -ScriptBlock {
+            Write-PodeViewResponse -Path 'SQLite-Data.pode'
+        }
+        # Pester Result
+        Add-PodeRoute -Method Get -Path '/pester' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Pester-Result.pode'
+        }
+        # Mermaid Diagram
+        Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
+        }
+        # Help
+        Add-PodeRoute -Method Get -Path '/help' -ScriptBlock {
+            Write-PodeViewResponse -Path 'Help.pode'
+        }
+    }
+
+    end{
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+    }
+
+}
+
+function Initialize-ApiEndpoints {
+    [CmdletBinding()]
+    param()
+
+    begin{
+        $function = $($MyInvocation.MyCommand.Name)
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ Begin   ]', "$($function)", $Watch -Join ' ')
+    }
+
+    process{
+        $BinPath    = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
+        $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pstests.xml'
     
-    Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+        Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'API'
+            Write-PodeJsonResponse -Value $Response
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/pode' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'API'
+            Write-PodeJsonResponse -Value $Response
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/asset' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'API'
+            Write-PodeJsonResponse -Value $Response
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/sqlite' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'API' -TsqlQuery $WebEvent.Data
+            Write-PodeJsonResponse -Value $Response
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/pester' -ContentType 'application/json' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
+            param($BinPath, $PesterPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            Import-Module Pester
+            if($WebEvent.Data -is [system.array]){
+                $data = $WebEvent.Data
+            }else{
+                $data = @('example.ch')
+            }
+            # In a container it's possible to pass variables
+            $ContainerSplat = @{
+                Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
+                Data   = @{ Destination = $data}
+            }
+            $container  = New-PesterContainer @ContainerSplat
+            # Exclude Tests with the Tag NotRun
+            $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -PesterData $PesterData
+            if([String]::IsNullOrEmpty($Response)){
+                Write-PodeJsonResponse -Value 'Could not read pester results' -StatusCode 400
+            }else{
+                Write-PodeJsonResponse -Value $Response
+            }
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/mermaid' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API' -TsqlQuery $WebEvent.Data
+            Write-PodeJsonResponse -Value $Response
+        }
+    
+        Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
+            param($BinPath)
+            if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
+            $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
+            Write-PodeJsonResponse -Value $Response
+        }
+    }
+
+    end{
+        Write-Verbose $('[', (Get-Date -f 'yyyy-MM-dd HH:mm:ss.fff'), ']', '[ End     ]', "$($MyInvocation.MyCommand.Name)" -Join ' ')
+    }
 
 }
 #endregion
@@ -122,109 +262,13 @@ Start-PodeServer -Thread 2 {
 
     # Add File Watcher
     $WatcherPath = Join-Path -Path $($PSScriptRoot) -ChildPath 'upload'
-    Invoke-FileWatcher -Watch $WatcherPath
+    Initialize-FileWatcher -Watch $WatcherPath
     
-    #region Set Pode endpoints for the web pages
-    Add-PodeRoute -Method Get -Path '/' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Index.pode'
-    }
+    # Set Pode endpoints for the web pages
+    Initialize-WebEndpoints
 
-    Add-PodeRoute -Method Get -Path '/pode' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Pode-Server.pode'
-    }
-
-    Add-PodeRoute -Method Get -Path '/update' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Update-Assets.pode'
-    }
-
-    Add-PodeRoute -Method Get -Path '/sqlite' -ScriptBlock {
-        Write-PodeViewResponse -Path 'SQLite-Data.pode'
-    }
-
-    Add-PodeRoute -Method Get -Path '/pester' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Pester-Result.pode'
-    }
-
-    Add-PodeRoute -Method Get -Path '/mermaid' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Mermaid-Diagram.pode'
-    }
-
-    Add-PodeRoute -Method Get -Path '/help' -ScriptBlock {
-        Write-PodeViewResponse -Path 'Help.pode'
-    }
-    #endregion
-
-    #region Set Pode endpoints for the api
-    $BinPath    = Join-Path -Path $($PSScriptRoot) -ChildPath 'bin'
-    $PesterPath = Join-Path -Path $($BinPath).Replace('bin','upload') -ChildPath 'pstests.xml'
-
-    Add-PodeRoute -Method Post -Path '/api/index' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlIndexPage.ps1') -Title 'Index' -Request 'API'
-        Write-PodeJsonResponse -Value $Response
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/pode' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPodeServerPage.ps1') -Title 'Pode Server' -Request 'API'
-        Write-PodeJsonResponse -Value $Response
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/asset' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlUpdateAssetPage.ps1') -Title 'Update Assets' -Request 'API'
-        Write-PodeJsonResponse -Value $Response
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/sqlite' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlSQLitePage.ps1') -Title 'SQLite Data' -Request 'API' -TsqlQuery $WebEvent.Data
-        Write-PodeJsonResponse -Value $Response
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/pester' -ContentType 'application/json' -ArgumentList @($BinPath, $PesterPath) -ScriptBlock {
-        param($BinPath, $PesterPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        Import-Module Pester
-        if($WebEvent.Data -is [system.array]){
-            $data = $WebEvent.Data
-        }else{
-            $data = @('example.ch')
-        }
-        # In a container it's possible to pass variables
-        $ContainerSplat = @{
-            Path   = $(Join-Path $BinPath -ChildPath 'Invoke-PesterResult.Tests.ps1')
-            Data   = @{ Destination = $data}
-        }
-        $container  = New-PesterContainer @ContainerSplat
-        # Exclude Tests with the Tag NotRun
-        $PesterData = Invoke-Pester -Container $container -PassThru -Output None -ExcludeTagFilter NotRun
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlPesterPage.ps1') -Title 'Pester Result' -Request 'API' -PesterData $PesterData
-        if([String]::IsNullOrEmpty($Response)){
-            Write-PodeJsonResponse -Value 'Could not read pester results' -StatusCode 400
-        }else{
-            Write-PodeJsonResponse -Value $Response
-        }
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/mermaid' -ContentType 'application/text' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlMermaidPage.ps1') -Title 'Mermaid Diagram' -Request 'API' -TsqlQuery $WebEvent.Data
-        Write-PodeJsonResponse -Value $Response
-    }
-
-    Add-PodeRoute -Method Post -Path '/api/help' -ArgumentList @($BinPath) -ScriptBlock {
-        param($BinPath)
-        if($CurrentOS -eq [OSType]::Windows){Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force}
-        $Response = . $(Join-Path $BinPath -ChildPath 'New-PshtmlHelpPage.ps1') -Title 'Help' -Request 'API'
-        Write-PodeJsonResponse -Value $Response
-    }
-    #endregion
+    # Set Pode endpoints for the api
+    Initialize-ApiEndpoints
 
 } -Verbose 
 

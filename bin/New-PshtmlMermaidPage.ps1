@@ -68,11 +68,7 @@ process{
     $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
-    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
-    $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
-    $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
@@ -153,7 +149,7 @@ process{
     }
     #endregion navbar
 
-    #region header
+    #region header for mermaid
     $header = {
         head {
             meta -charset 'UTF-8'
@@ -170,7 +166,7 @@ process{
             Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
             Script {mermaid.initialize({startOnLoad:true})}
 
-            title "#PSXi $($HeaderTitle)"
+            title "#PSXi $($Title)"
             Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
         } 
     }
@@ -180,19 +176,8 @@ process{
     $body = {
         body {
             
-            #region Check TimeStamp and build the badge
-            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
-            #endregion
-
-            #region <!-- header -->
-            header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
-                    p { h1 "#PSXi $($HeaderTitle)" }
-                    #p { h2 $HeaderCaption }  
-                    p { "$($BodyDescription) The page is $($out)" }   
-                }
-            }
-            #endregion header
+            # includes code from external script for --> header
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/header.ps1')
             
             #region <!-- section -->
             section -id "section" -Content {  
@@ -331,7 +316,10 @@ process{
     #region HTML
     $HTML = html {
         Invoke-Command -ScriptBlock $header
+
         Invoke-Command -ScriptBlock $body
+
+        # includes code from external script for --> footer
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html

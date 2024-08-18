@@ -1,3 +1,6 @@
+# To includes code from external script for --> head:
+# . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/head.ps1')
+
 #region header
 head {
     meta -charset 'UTF-8'
@@ -16,7 +19,7 @@ head {
     # Script -src $(Join-Path -Path $AssetsPath -ChildPath 'mermaid/mermaid.min.js')
     # Script {mermaid.initialize({startOnLoad:true})}
 
-    title "#PSXi $($HeaderTitle)"
+    title "#PSXi $($Title)"
     Link -rel icon -type "image/x-icon" -href "/assets/img/favicon.ico"
 } 
 #endregion header

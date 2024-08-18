@@ -68,11 +68,7 @@ process{
     $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
     $HeaderColor          = '#212529'
-    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
-    $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
-    $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
@@ -156,19 +152,8 @@ process{
     $body = {
         body {
             
-            #region Check TimeStamp and build the badge
-            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
-            #endregion
-
-            #region <!-- header -->
-            header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
-                    p { h1 "#PSXi $($HeaderTitle)" }
-                    #p { h2 $HeaderCaption }  
-                    p { "$($BodyDescription) The page is $($out)" }   
-                }
-            }
-            #endregion header
+            # includes code from external script for --> header
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/header.ps1')
             
             #region <!-- section -->
             section -id "section" -Content {  
@@ -209,60 +194,150 @@ process{
 
                 div -id "Content" -Class "$($ContainerStyle)" {
                     article -Id "pester" -Content {
-                        $SplatProperties = @{
-                            Object     = $PesterTests.Where( { $_.Result -match 'Passed' } )
-                            TableClass = 'table table-responsive table-striped table-hover'
-                            TheadClass = "thead-dark"
-                            Properties = @(
-                                'Block','TestName','Result','Duration'
-                            )
+
+                        p -class "accordion" -id "accordionPesterTests" {
+                            
+                            #region Passed
+                            if($PassedTests -gt 0){
+                                h2 -id 'PassedTests' {'Passed'} -Style "color:$($HeaderColor)"
+                                $SplatProperties = @{
+                                    Object     = $PesterTests.Where( { $_.Result -match 'Passed' } )
+                                    TableClass = 'table table-responsive table-striped table-hover'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'Block','TestName','Result','Duration'
+                                    )
+                                }
+        
+                                div -class "accordion-item" {
+                                    h2 -class "accordion-header" {
+                                        button -class "accordion-button collapsed" -Attributes @{
+                                            "type"="button"
+                                            "data-bs-toggle"="collapse"
+                                            "data-bs-target"="#collapsePassed"
+                                            "aria-expanded"="false" 
+                                            "aria-controls"="collapsePassed"
+                                        } -content {
+                                            p {'Great - This are the Tests that passed. Click to show/hide the Tests...'} -Style "color:$($TextColor)"
+                                        }
+                                    }
+                                }
+                                div -class "accordion-collapse collapse collapse" -id "collapsePassed" -Attributes @{"data-bs-parent"="#accordionPesterTests"}{
+                                    div -class "card card-body" {
+                                        ConvertTo-PSHtmlTable @SplatProperties
+                                    }
+                                }
+                            }
+                            #endregion Passed
+
+                            #region Failed
+                            if($FailedTests -gt 0){
+                                h2 -id 'FailedTests' {'Failed'} -Style "color:$($HeaderColor)"
+                                $SplatProperties = @{
+                                    Object     = $PesterTests.Where( { $_.Result -match 'Failed' } )
+                                    TableClass = 'table table-responsive table-striped table-hover table-danger'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'Block','TestName','Result','Duration','Message'
+                                    )
+                                }
+
+                                div -class "accordion-item" {
+                                    h2 -class "accordion-header" {
+                                        button -class "accordion-button collapsed" -Attributes @{
+                                            "type"="button"
+                                            "data-bs-toggle"="collapse"
+                                            "data-bs-target"="#collapseFailed"
+                                            "aria-expanded"="false" 
+                                            "aria-controls"="collapseFailed"
+                                        } -content {
+                                            p {'Ompf - This are the Tests that failed. Click to show/hide the Tests...'} -Style "color:$($TextColor)"
+                                        }
+                                    }
+                                }
+
+                                div -class "accordion-collapse collapse show" -id "collapseFailed" -Attributes @{"data-bs-parent"="#accordionPesterTests"}{
+                                    div -class "card card-body" {
+                                        ConvertTo-PSHtmlTable @SplatProperties
+                                    }
+                                }
+                            }
+                            #endregion Failed
+
+                            #region NotRun
+                            if($NotRunTests -gt 0){
+                                h2 -id 'NotRunTests' {'NotRun'} -Style "color:$($HeaderColor)"
+                                $SplatProperties = @{
+                                    Object     = $PesterTests.Where( { $_.Result -match 'NotRun' } )
+                                    TableClass = 'table table-responsive table-striped table-hover'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'Block','TestName','Result','Duration'
+                                    )
+                                }
+
+                                div -class "accordion-item" {
+                                    h2 -class "accordion-header" {
+                                        button -class "accordion-button collapsed" -Attributes @{
+                                            "type"="button"
+                                            "data-bs-toggle"="collapse"
+                                            "data-bs-target"="#collapseNotRun"
+                                            "aria-expanded"="false" 
+                                            "aria-controls"="collapseNotRun"
+                                        } -content {
+                                            p {'Nevermind - Excluded Tests by Tag name. Click to show/hide the Tests...'} -Style "color:$($TextColor)"
+                                        }
+                                    }
+                                }
+    
+                                div -class "accordion-collapse collapse collapse" -id "collapseNotRun" -Attributes @{"data-bs-parent"="#accordionPesterTests"}{
+                                    div -class "card card-body" {
+                                        ConvertTo-PSHtmlTable @SplatProperties
+                                    }
+                                }
+    
+                            }
+                            #endregion
+
+                            #region Skipped
+                            if($SkippedTests -gt 0){
+                                h2 -id 'SkippedTests' {'Skipped'} -Style "color:$($HeaderColor)"
+                                $SplatProperties = @{
+                                    Object     = $PesterTests.Where( { $_.Result -match 'Skipped' } )
+                                    TableClass = 'table table-responsive table-striped table-hover'
+                                    TheadClass = "thead-dark"
+                                    Properties = @(
+                                        'Block','TestName','Result','Duration'
+                                    )
+                                }
+
+                                div -class "accordion-item" {
+                                    h2 -class "accordion-header" {
+                                        button -class "accordion-button collapsed" -Attributes @{
+                                            "type"="button"
+                                            "data-bs-toggle"="collapse"
+                                            "data-bs-target"="#collapseSkipped"
+                                            "aria-expanded"="false" 
+                                            "aria-controls"="collapseSkipped"
+                                        } -content {
+                                            p {'Nevermind - Excluded Tests by the skip-parameter. Click to show/hide the Tests...'} -Style "color:$($TextColor)"
+                                        }
+                                    }
+                                }
+    
+                                div -class "accordion-collapse collapse collapse" -id "collapseSkipped" -Attributes @{"data-bs-parent"="#accordionPesterTests"}{
+                                    div -class "card card-body" {
+                                        ConvertTo-PSHtmlTable @SplatProperties
+                                    }
+                                }
+
+                            }
+                            #endregion
+
                         }
-                        h2 -id 'PassedTests' {'Passed'} -Style "color:$($HeaderColor)"
-                        ConvertTo-PSHtmlTable @SplatProperties
-                    }
-                    article -Id "pester" -Content {
-                        $SplatProperties = @{
-                            Object     = $PesterTests.Where( { $_.Result -match 'Failed' } )
-                            TableClass = 'table table-responsive table-striped table-hover'
-                            TheadClass = "thead-dark"
-                            Properties = @(
-                                'Block','TestName','Result','Duration','Message'
-                            )
-                        }
-                        h2 -id 'FailedTests' {'Failed'} -Style "color:$($HeaderColor)"
-                        ConvertTo-PSHtmlTable @SplatProperties
+
                     }
 
-                    if($NotRunTests -gt 0){
-                        article -Id "pester" -Content {
-                            $SplatProperties = @{
-                                Object     = $PesterTests.Where( { $_.Result -match 'NotRun' } )
-                                TableClass = 'table table-responsive table-striped table-hover'
-                                TheadClass = "thead-dark"
-                                Properties = @(
-                                    'Block','TestName','Result','Duration'
-                                )
-                            }
-                            h2 -id 'NotRunTests' {'NotRun'} -Style "color:$($HeaderColor)"
-                            p {'Excluded Tests by Tag name.'} -Style "color:$($TextColor)"
-                            ConvertTo-PSHtmlTable @SplatProperties
-                        }
-                    }
-                    if($SkippedTests -gt 0){
-                        article -Id "pester" -Content {
-                            $SplatProperties = @{
-                                Object     = $PesterTests.Where( { $_.Result -match 'Skipped' } )
-                                TableClass = 'table table-responsive table-striped table-hover'
-                                TheadClass = "thead-dark"
-                                Properties = @(
-                                    'Block','TestName','Result','Duration'
-                                )
-                            }
-                            h2 -id 'SkippedTests' {'Skipped'} -Style "color:$($HeaderColor)"
-                            p {"Excluded Tests by the skip-parameter."} -Style "color:$($TextColor)"
-                            ConvertTo-PSHtmlTable @SplatProperties
-                        }
-                    }
                 }
                 #endregion content
                 
@@ -280,8 +355,12 @@ process{
 
     #region HTML
     $HTML = html {
+        # includes code from external script for --> head
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/head.ps1')
+
         Invoke-Command -ScriptBlock $body
+
+        # includes code from external script for --> footer
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html

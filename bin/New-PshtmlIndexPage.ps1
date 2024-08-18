@@ -61,17 +61,11 @@ process{
     Write-Verbose "OutFile: $($OutFile)"
     Write-Verbose "AssetsPath: $($AssetsPath)"
 
-    $ContainerStyle       = 'Container'
     $ContainerStyleFluid  = 'container-fluid'
-    $HeaderColor          = '#212529'
-    $PsHeaderColor        = '#012456'
     $TextColor            = '#000'
     $CardHeaderColor      = '#fff'
     $CardTitleColor       = '#fff'
     $CardButtonColor      = '#fff'
-    $HeaderTitle          = $($Title)
-    $BodyDescription      = "I ♥ PS Pode > This is an example for using pode and PSHTML, requested by $($Request)."
-    $FooterSummary        = "Based on "
     $BootstrapNavbarColor = 'bg-dark navbar-dark'
 
     $NavbarWebSiteLinks = [ordered]@{
@@ -133,19 +127,8 @@ process{
     $body = {
         body {
 
-            #region Check TimeStamp and build the badge
-            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/timestamp.ps1')
-            #endregion
-
-            #region <!-- header -->
-            header  {
-                div -id "j1" -class 'jumbotron text-center' -Style "padding:15; background-color:$PsHeaderColor" -content {
-                    p { h1 "#PSXi $($HeaderTitle) Page" }
-                    #p { h2 $HeaderCaption }  
-                    p { "$($BodyDescription) The page is $($out)" }  
-                }
-            }
-            #endregion header
+            # includes code from external script for --> header
+            . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/header.ps1')
             
             #region <!-- section -->
             section -id "section" -Content {  
@@ -244,8 +227,12 @@ process{
 
     #region HTML
     $HTML = html {
+        # includes code from external script for --> head
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/head.ps1')
+
         Invoke-Command -ScriptBlock $body
+
+        # includes code from external script for --> footer
         . (Join-Path -Path $PSScriptRoot -ChildPath 'includes/footer.ps1')
     }
     #endregion html
